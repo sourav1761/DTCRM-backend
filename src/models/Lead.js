@@ -53,6 +53,8 @@ const LeadSchema = new mongoose.Schema({
   completionDate: { type: Date },
   finalOutcome: { type: String, enum: ["SUCCESSFUL", "UNSUCCESSFUL", ""], default: "" },
 
+    duePaymentDate: { type: Date },
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
