@@ -78,6 +78,8 @@ app.use("/api/payments", require("./routes/payments"));
 app.use("/api/comparisons", require("./routes/comparison"));
 app.use("/api/credits", require("./routes/credits"));
 app.use("/api/dashboard", require("./routes/dashboard"));
+app.use("/api/credit", require("./routes/credits"));
+
 // app.use("/api/auth", require("./routes/auth"));
 
 // Root

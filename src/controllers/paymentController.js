@@ -86,3 +86,64 @@ exports.getPaymentsSummary = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// ============================
+//     UPDATE PAYMENT DETAILS
+// ============================
+exports.updatePayment = async (req, res) => {
+  try {
+    const paymentId = req.params.id;
+    const {
+      clientName,
+      status,
+      duePaymentDate,
+      paidAmount,
+      dueAmount,
+      paymentMode
+    } = req.body;
+
+    // 1️⃣ Find payment
+    const payment = await Payment.findById(paymentId);
+    if (!payment)
+      return res.status(404).json({ success: false, message: "Payment not found" });
+
+    // 2️⃣ Update payment fields
+    payment.clientName = clientName ?? payment.clientName;
+    payment.status = status ?? payment.status;
+    payment.paidAmount = paidAmount ?? payment.paidAmount;
+    payment.dueAmount = dueAmount ?? payment.dueAmount;
+    payment.paymentMode = paymentMode ?? payment.paymentMode;
+
+    // 3️⃣ Update lead duePaymentDate if provided
+    let reminderDate = null;
+
+    if (duePaymentDate && payment.lead) {
+      const lead = await Lead.findById(payment.lead);
+      if (lead) {
+        lead.duePaymentDate = new Date(duePaymentDate);
+        await lead.save();
+
+        // Set reminder date = due date - 3 days
+        const rdate = new Date(lead.duePaymentDate);
+        rdate.setDate(rdate.getDate() - 3);
+        reminderDate = rdate;
+      }
+    }
+
+    // 4️⃣ Save payment
+    await payment.save();
+
+    res.json({
+      success: true,
+      message: "Payment updated successfully",
+      payment: {
+        ...payment.toObject(),
+        duePaymentDate: duePaymentDate || null,
+        reminderDate
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
