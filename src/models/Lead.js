@@ -1,11 +1,109 @@
 
 
+// const mongoose = require("mongoose");
+
+// // Transaction item schema
+// const TransactionSchema = new mongoose.Schema({
+//   id: { type: Number, required: true },
+//   amount: { type: Number, required: true },
+//   date: { type: String },
+//   timestamp: { type: String }
+// });
+
+// // Case completion schema
+// const CaseCompletionSchema = new mongoose.Schema({
+//   completed: { type: Boolean, default: false },
+//   date: { type: Date },
+//   result: { type: String, enum: ["SUCCESSFUL", "UNSUCCESSFUL", ""], default: "" }
+// });
+
+// // Main Lead Schema
+// const LeadSchema = new mongoose.Schema({
+//   customerName: { type: String, required: true },
+//   phone: { type: String, required: true },
+
+//   buyerName: { type: String },
+//   sellerName: { type: String },
+
+//   propertyLocation: { type: String },
+//   docType: { type: String },
+//   docNo: { type: String },
+//   docDate: { type: Date },
+//   status: { type: String },
+
+//   stampDuty: { type: Number, default: 0 },
+//   registrationFees: { type: Number, default: 0 },
+
+//   registrarCommission: { type: Number, default: 0 },
+//   agentCommission: { type: Number, default: 0 },
+
+//   paidAmount: { type: Number, default: 0 },
+//   dueAmount: { type: Number, default: 0 },
+
+//   fuelpaymentType: { type: String },
+//   paymentMode: { type: String },
+
+//   fuelAmount: { type: Number, default: 0 },
+//   remarks: { type: String },
+
+//   // NEW: Transaction histories
+//   stampDutyTransactions: [TransactionSchema],
+//   registrationFeesTransactions: [TransactionSchema],
+
+//   // Completion section
+//   markCompleted: { type: Boolean, default: false },
+//   completionDate: { type: Date },
+//   finalOutcome: { type: String, enum: ["SUCCESSFUL", "UNSUCCESSFUL", ""], default: "" },
+
+//   duePaymentDate: { type: Date },
+
+//   // ⭐ OPTIONAL LOAN SECTION ⭐
+//   hasLoan: { type: Boolean, default: false },  // checkbox
+//   loanAmount: { type: Number, default: null },
+//   tenureMonths: { type: Number, default: null },
+//   interestRate: { type: Number, default: null },
+//   agreementUpload: { type: String, default: null }, // file URL
+//   loanDescription: { type: String, default: "" },
+
+//   createdAt: { type: Date, default: Date.now },
+//   updatedAt: { type: Date, default: Date.now }
+// });
+
+// // Auto update timestamp
+// LeadSchema.pre("save", function () {
+//   this.updatedAt = Date.now();
+// });
+
+// module.exports = mongoose.model("Lead", LeadSchema);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const mongoose = require("mongoose");
 
 // Transaction item schema
 const TransactionSchema = new mongoose.Schema({
   id: { type: Number, required: true },
   amount: { type: Number, required: true },
+  paymentMode: { type: String },     // ⭐ NEW
   date: { type: String },
   timestamp: { type: String }
 });
@@ -37,11 +135,13 @@ const LeadSchema = new mongoose.Schema({
   registrarCommission: { type: Number, default: 0 },
   agentCommission: { type: Number, default: 0 },
 
-  paidAmount: { type: Number, default: 0 },
+  // remove old paidAmount system
+  paidAmount: { type: Number, default: 0 }, // automatically calculated
   dueAmount: { type: Number, default: 0 },
 
+  // remove old paymentMode
   fuelpaymentType: { type: String },
-  paymentMode: { type: String },
+  paymentMode: { type: String },  // optional - but not used now for history
 
   fuelAmount: { type: Number, default: 0 },
   remarks: { type: String },
@@ -49,6 +149,9 @@ const LeadSchema = new mongoose.Schema({
   // NEW: Transaction histories
   stampDutyTransactions: [TransactionSchema],
   registrationFeesTransactions: [TransactionSchema],
+
+  // ⭐ NEW PAID AMOUNT HISTORY ⭐
+  paidAmountTransactions: [TransactionSchema],
 
   // Completion section
   markCompleted: { type: Boolean, default: false },
@@ -58,11 +161,11 @@ const LeadSchema = new mongoose.Schema({
   duePaymentDate: { type: Date },
 
   // ⭐ OPTIONAL LOAN SECTION ⭐
-  hasLoan: { type: Boolean, default: false },  // checkbox
+  hasLoan: { type: Boolean, default: false },
   loanAmount: { type: Number, default: null },
   tenureMonths: { type: Number, default: null },
   interestRate: { type: Number, default: null },
-  agreementUpload: { type: String, default: null }, // file URL
+  agreementUpload: { type: String, default: null },
   loanDescription: { type: String, default: "" },
 
   createdAt: { type: Date, default: Date.now },
