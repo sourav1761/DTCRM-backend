@@ -31,7 +31,7 @@ app.use("/api/comparisons", require("./routes/comparison"));
 app.use("/api/credits", require("./routes/credits"));
 app.use("/api/dashboard", require("./routes/dashboard"));
 app.use("/api/auth", require("./routes/auth"));
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // ❌ REMOVE THIS LINE!!
 // app.use("/api/leads", require("./src/routes/Lead"));
 
