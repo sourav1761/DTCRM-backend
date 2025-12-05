@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 
 const WalletTransactionSchema = new mongoose.Schema({
@@ -7,6 +6,8 @@ const WalletTransactionSchema = new mongoose.Schema({
   method: { type: String },
   reference: { type: String },
   lead: { type: mongoose.Schema.Types.ObjectId, ref: "Lead" },
+  autoDeduct: { type: Boolean, default: false }, // NEW: Track auto deductions
+  autoRefund: { type: Boolean, default: false }, // NEW: Track auto refunds
   createdAt: { type: Date, default: Date.now }
 });
 

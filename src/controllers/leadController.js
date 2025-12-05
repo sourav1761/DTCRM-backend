@@ -1,7 +1,6 @@
-
 const Lead = require("../models/Lead");
 const Payment = require("../models/Payment");
-const { autoWalletDeduct } = require("../utils/walletHelper");
+const { autoWalletDeduct, autoWalletRefund } = require("../utils/walletHelper");
 
 // Calculate total of transaction array
 const totalFromArray = (arr = []) =>
@@ -74,18 +73,34 @@ exports.updateLead = async (req, res) => {
     if (!oldLead)
       return res.status(404).json({ success: false, message: "Lead not found" });
 
-    // stamp & reg only
+    // Get old totals
     const oldStamp = totalFromArray(oldLead.stampDutyTransactions);
-    const newStamp = totalFromArray(body.stampDutyTransactions || []);
-
     const oldReg = totalFromArray(oldLead.registrationFeesTransactions);
+    
+    // Get new totals
+    const newStamp = totalFromArray(body.stampDutyTransactions || []);
     const newReg = totalFromArray(body.registrationFeesTransactions || []);
 
-    if (newStamp > oldStamp)
-      await autoWalletDeduct(newStamp - oldStamp, oldLead._id, "Stamp Duty Updated");
+    // Calculate differences
+    const stampDiff = newStamp - oldStamp;
+    const regDiff = newReg - oldReg;
 
-    if (newReg > oldReg)
-      await autoWalletDeduct(newReg - oldReg, oldLead._id, "Registration Fees Updated");
+    // Handle wallet adjustments
+    if (stampDiff > 0) {
+      // Amount increased - deduct from wallet
+      await autoWalletDeduct(stampDiff, oldLead._id, "Stamp Duty Updated");
+    } else if (stampDiff < 0) {
+      // Amount decreased - refund to wallet
+      await autoWalletRefund(Math.abs(stampDiff), oldLead._id, "Stamp Duty Removed/Reduced");
+    }
+
+    if (regDiff > 0) {
+      // Amount increased - deduct from wallet
+      await autoWalletDeduct(regDiff, oldLead._id, "Registration Fees Updated");
+    } else if (regDiff < 0) {
+      // Amount decreased - refund to wallet
+      await autoWalletRefund(Math.abs(regDiff), oldLead._id, "Registration Fees Removed/Reduced");
+    }
 
     // ⭐ CALCULATE NEW PAID AMOUNT TOTAL ⭐
     const updatedPaidTransactions =
@@ -132,7 +147,90 @@ exports.updateLead = async (req, res) => {
   }
 };
 
+// =========================
+//     DELETE FEE TRANSACTION
+// =========================
+exports.deleteFeeTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { feeType, transactionId } = req.body;
+    
+    const lead = await Lead.findById(id);
+    if (!lead)
+      return res.status(404).json({ success: false, message: "Lead not found" });
 
+    // Get old totals
+    const oldStampTotal = totalFromArray(lead.stampDutyTransactions);
+    const oldRegTotal = totalFromArray(lead.registrationFeesTransactions);
+    
+    let removedAmount = 0;
+    
+    // Remove transaction based on fee type
+    if (feeType === "stampDuty") {
+      const transactionIndex = lead.stampDutyTransactions.findIndex(
+        t => t._id.toString() === transactionId || t.id === transactionId
+      );
+      
+      if (transactionIndex !== -1) {
+        removedAmount = lead.stampDutyTransactions[transactionIndex].amount;
+        lead.stampDutyTransactions.splice(transactionIndex, 1);
+      }
+    } else if (feeType === "registrationFees") {
+      const transactionIndex = lead.registrationFeesTransactions.findIndex(
+        t => t._id.toString() === transactionId || t.id === transactionId
+      );
+      
+      if (transactionIndex !== -1) {
+        removedAmount = lead.registrationFeesTransactions[transactionIndex].amount;
+        lead.registrationFeesTransactions.splice(transactionIndex, 1);
+      }
+    } else {
+      return res.status(400).json({ success: false, message: "Invalid fee type" });
+    }
+    
+    if (removedAmount <= 0) {
+      return res.status(400).json({ success: false, message: "Transaction not found" });
+    }
+    
+    // Get new totals
+    const newStampTotal = totalFromArray(lead.stampDutyTransactions);
+    const newRegTotal = totalFromArray(lead.registrationFeesTransactions);
+    
+    // Refund to wallet if amount was removed
+    if (feeType === "stampDuty") {
+      const stampDiff = newStampTotal - oldStampTotal;
+      if (stampDiff < 0) {
+        await autoWalletRefund(Math.abs(stampDiff), lead._id, `Stamp Duty Transaction Deleted: ${removedAmount}`);
+      }
+    } else if (feeType === "registrationFees") {
+      const regDiff = newRegTotal - oldRegTotal;
+      if (regDiff < 0) {
+        await autoWalletRefund(Math.abs(regDiff), lead._id, `Registration Fee Transaction Deleted: ${removedAmount}`);
+      }
+    }
+    
+    // Save updated lead
+    await lead.save();
+    
+    // Update payment card summary
+    await Payment.findOneAndUpdate(
+      { lead: lead._id },
+      {
+        dueAmount: lead.dueAmount,
+        status: lead.dueAmount <= 0 ? "fully_paid" : "partial"
+      }
+    );
+    
+    res.json({ 
+      success: true, 
+      message: "Transaction deleted successfully",
+      refundedAmount: removedAmount,
+      lead 
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
 // =========================
 //     GET ALL LEADS
@@ -177,5 +275,3 @@ exports.markCaseCompletion = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-
