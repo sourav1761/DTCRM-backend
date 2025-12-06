@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const staticMiddleware = require("./middleware/staticMiddleware");
 
 const app = express();
 
@@ -11,8 +12,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve file uploads
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+
+
 
 // CONNECT MONGODB
 mongoose
@@ -23,17 +26,13 @@ mongoose
     process.exit(1);
   });
 
-// ROUTES
-app.use("/api/leads", require("./routes/Lead"));   // ✔ KEEP THIS
+app.use("/api/leads", require("./routes/Lead"));
 app.use("/api/wallet", require("./routes/wallet"));
 app.use("/api/payments", require("./routes/payments"));
 app.use("/api/comparisons", require("./routes/comparison"));
 app.use("/api/credits", require("./routes/credits"));
 app.use("/api/dashboard", require("./routes/dashboard"));
 app.use("/api/auth", require("./routes/auth"));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-// ❌ REMOVE THIS LINE!!
-// app.use("/api/leads", require("./src/routes/Lead"));
 
 // Root
 app.get("/", (req, res) =>
@@ -43,3 +42,9 @@ app.get("/", (req, res) =>
 // START SERVER
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));
+
+
+
+
+
+

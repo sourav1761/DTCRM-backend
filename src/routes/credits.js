@@ -1,32 +1,60 @@
 
+// const express = require("express");
+// const router = express.Router();
+
+// const upload = require("../src/middleware/uploadMiddleware");
+
+// const {
+//   addLoanEntry,
+//   getRecentCreditsLoans,
+//   addCredit,
+//   getCreditHistory,
+//   updateLoanEntry
+// } = require("../src/controllers/creditController");
+
+// // ACCOUNT CREDIT ENTRY
+// router.post("/credit", addCredit);
+
+// // CREATE LOAN ENTRY
+// router.post("/loan", upload.array("agreements", 5), addLoanEntry);
+
+// // UPDATE LOAN ENTRY (same ID)
+// router.patch("/loan/:id", upload.array("agreements", 5), updateLoanEntry);
+
+// // LIST
+// router.get("/recent", getRecentCreditsLoans);
+// router.get("/history", getCreditHistory);
+
+// module.exports = router;
+
+
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const path = require("path");
+
+// RIGHT PATH
+const upload = require("../middleware/uploadMiddleware");
 
 const {
   addLoanEntry,
   getRecentCreditsLoans,
   addCredit,
-  getCreditHistory   // ✅ NEW
+  getCreditHistory,
+  updateLoanEntry
 } = require("../controllers/creditController");
 
-// File upload (loan agreement files)
-const upload = multer({
-  dest: path.join(__dirname, "..", "uploads")
-});
-
 // ACCOUNT CREDIT ENTRY
-
 router.post("/credit", addCredit);
 
-// LOAN ENTRY (with file upload)
+// ADD LOAN ENTRY
 router.post("/loan", upload.array("agreements", 5), addLoanEntry);
 
-// RECENT CREDIT + LOAN ENTRIES
+// UPDATE LOAN ENTRY
+router.patch("/loan/:id", upload.array("agreements", 5), updateLoanEntry);
+
+// LIST
 router.get("/recent", getRecentCreditsLoans);
 
-// CREDIT HISTORY (NEW)
+// CREDIT HISTORY
 router.get("/history", getCreditHistory);
 
 module.exports = router;
