@@ -5,10 +5,14 @@ const mongoose = require("mongoose");
 const TransactionSchema = new mongoose.Schema({
   id: { type: Number, required: true },
   amount: { type: Number, required: true },
+
+  // ⭐ ADD THIS FOR STATIONERY DESCRIPTION ⭐
+  description: { type: String },
+
   paymentMode: { type: String },
   date: { type: String },
   timestamp: { type: String },
-  remarks: { type: String } // ⭐ NEW: Remarks for paid amount transactions
+  remarks: { type: String } // Remarks used for other transactions
 });
 
 // Case completion schema
@@ -38,7 +42,7 @@ const LeadSchema = new mongoose.Schema({
   registrarCommission: { type: Number, default: 0 },
   agentCommission: { type: Number, default: 0 },
 
-  // ⭐ NEW: Stationery Expenses Field ⭐
+  // ⭐ STATIONERY EXPENSES
   stationeryExpenses: { type: Number, default: 0 },
 
   paidAmount: { type: Number, default: 0 },
@@ -50,21 +54,20 @@ const LeadSchema = new mongoose.Schema({
   fuelAmount: { type: Number, default: 0 },
   remarks: { type: String },
 
-  // NEW: Transaction histories
+  // ⭐ TRANSACTION HISTORIES
   stampDutyTransactions: [TransactionSchema],
   registrationFeesTransactions: [TransactionSchema],
-
-  // ⭐ PAID AMOUNT HISTORY WITH REMARKS ⭐
+  stationeryTransactions: [TransactionSchema],   // ⭐ This now supports description
   paidAmountTransactions: [TransactionSchema],
 
-  // Completion section
+  // ⭐ COMPLETION SECTION
   markCompleted: { type: Boolean, default: false },
   completionDate: { type: Date },
   finalOutcome: { type: String, enum: ["SUCCESSFUL", "UNSUCCESSFUL", ""], default: "" },
 
   duePaymentDate: { type: Date },
 
-  // ⭐ OPTIONAL LOAN SECTION ⭐
+  // ⭐ LOAN SECTION
   hasLoan: { type: Boolean, default: false },
   loanAmount: { type: Number, default: null },
   tenureMonths: { type: Number, default: null },

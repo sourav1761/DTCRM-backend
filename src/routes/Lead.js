@@ -14,4 +14,9 @@ router.post("/:id/upload-agreement", upload.single("agreement"), leadCtrl.upload
 router.delete("/:id/fee", leadCtrl.deleteFeeTransaction);
 router.patch("/:id/case", leadCtrl.markCaseCompletion);
 
+
+router.patch("/:id/stationery/add", leadCtrl.addStationeryTransaction);
+router.delete("/:id/stationery/delete", leadCtrl.deleteStationeryTransaction);
+
+
 module.exports = router;

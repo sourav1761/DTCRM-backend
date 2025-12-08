@@ -363,3 +363,65 @@ const oldFilePath = path.join(__dirname, "..", "..", lead.agreementUpload);
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+exports.addStationeryTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { amount, description, date, timestamp } = req.body;
+
+    const lead = await Lead.findById(id);
+    if (!lead)
+      return res.status(404).json({ success: false, message: "Lead not found" });
+
+    const newTransaction = {
+      id: Date.now(),
+      amount: Number(amount),
+      description: description || "Stationery expense",
+      date: date,
+      timestamp: timestamp
+    };
+
+    lead.stationeryTransactions.push(newTransaction);
+
+    // Update total
+    lead.stationeryExpenses = lead.stationeryTransactions.reduce(
+      (sum, t) => sum + Number(t.amount || 0),
+      0
+    );
+
+    await lead.save();
+
+    res.json({ success: true, lead });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.deleteStationeryTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { transactionId } = req.body;
+
+    const lead = await Lead.findById(id);
+    if (!lead)
+      return res.status(404).json({ success: false, message: "Lead not found" });
+
+    // Filter out the transaction
+    lead.stationeryTransactions = lead.stationeryTransactions.filter(
+      (t) => t.id != transactionId && t._id != transactionId
+    );
+
+    // Update total
+    lead.stationeryExpenses = lead.stationeryTransactions.reduce(
+      (sum, t) => sum + Number(t.amount || 0),
+      0
+    );
+
+    await lead.save();
+
+    res.json({ success: true, lead });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
