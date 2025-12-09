@@ -66,7 +66,7 @@ const router = express.Router();
 
 // Hardcoded users
 const USERS = [
-  { id: "admin_1", username: "admin", password: "admin123", role: "admin" },
+  { id: "admin_1", username: "DEEEPAKTYAGI", password: "110010161@mhA", role: "admin" },
   { id: "emp_1", username: "employee1", password: "emp123", role: "employee" },
   { id: "emp_2", username: "employee2", password: "emp456", role: "employee" }
 ];
