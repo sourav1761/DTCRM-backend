@@ -1,47 +1,29 @@
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const router = require("express").Router();
+const { upload, uploadMultiple } = require("../middleware/upload.middleware");
+const ctrl = require("../controllers/lead.controller");
 
-// Ensure uploads directory exists
-// const uploadDir = path.join(__dirname, "../uploads");
+// STEP 1 — CREATE LEAD (JSON ONLY)
+router.post("/", ctrl.createLead);
 
-const uploadDir = path.join(__dirname, "..", "..", "uploads");
+// UPDATE ANY STEP
+router.patch("/:id", ctrl.updateLead);
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// SINGLE DOCUMENT UPLOAD
+router.post(
+  "/:id/upload",
+  upload.single("document"),
+  ctrl.uploadDocument
+);
 
-// Configure storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, "agreement-" + uniqueSuffix + ext);
-  },
-});
+// ✅ MULTIPLE DOCUMENT UPLOAD (FIXED)
+router.post(
+  "/:id/upload-multiple",
+  uploadMultiple(),      // ✅ CALL IT
+  ctrl.uploadDocument
+);
 
-// File filter for image and PDF
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['.pdf', '.png', '.jpg', '.jpeg'];
-  const allowedMimeTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
-  
-  const extname = allowedTypes.includes(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedMimeTypes.includes(file.mimetype);
+router.get("/", ctrl.getLeads);
+router.get("/:id", ctrl.getLead);
+router.delete("/:id", ctrl.deleteLead);
 
-  if (mimetype && extname) {
-    return cb(null, true);
-  } else {
-    cb(new Error("Only .png, .jpg, .jpeg, and .pdf files are allowed"));
-  }
-};
-
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-});
-
-module.exports = upload;
+module.exports = router;

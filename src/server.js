@@ -3,48 +3,29 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
-const staticMiddleware = require("./middleware/staticMiddleware");
+const fs = require("fs");
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const uploadsPath = path.join(__dirname, "..", "uploads");
+if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
 
-app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+app.use("/uploads", express.static(uploadsPath));
 
-
-
-// CONNECT MONGODB
-mongoose
-  .connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => {
-    console.error("❌ MongoDB Connection Error:", err.message);
-    process.exit(1);
-  });
+  .catch(err => process.exit(1));
 
 app.use("/api/leads", require("./routes/Lead"));
-app.use("/api/wallet", require("./routes/wallet"));
-app.use("/api/payments", require("./routes/payments"));
-app.use("/api/comparisons", require("./routes/comparison"));
-app.use("/api/credits", require("./routes/credits"));
-app.use("/api/dashboard", require("./routes/dashboard"));
-app.use("/api/auth", require("./routes/auth"));
 
-// Root
-app.get("/", (req, res) =>
-  res.json({ ok: true, message: "Backend running successfully" })
-);
+app.get("/api/test", (req, res) => {
+  res.json({ success: true, message: "Server OK" });
+});
 
-// START SERVER
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));
-
-
-
-
-
-
+app.listen(process.env.PORT || 5000, () => {
+  console.log("🚀 Server Running");
+});
