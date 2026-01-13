@@ -1,29 +1,34 @@
-const router = require("express").Router();
-const { upload, uploadMultiple } = require("../middleware/upload.middleware");
-const ctrl = require("../controllers/lead.controller");
 
-// STEP 1 — CREATE LEAD (JSON ONLY)
-router.post("/", ctrl.createLead);
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-// UPDATE ANY STEP
-router.patch("/:id", ctrl.updateLead);
+const uploadDir = path.join(__dirname, "..", "..", "uploads");
 
-// SINGLE DOCUMENT UPLOAD
-router.post(
-  "/:id/upload",
-  upload.single("document"),
-  ctrl.uploadDocument
-);
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-// ✅ MULTIPLE DOCUMENT UPLOAD (FIXED)
-router.post(
-  "/:id/upload-multiple",
-  uploadMultiple(),      // ✅ CALL IT
-  ctrl.uploadDocument
-);
+// =====================
+// STORAGE
+// =====================
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  },
+});
 
-router.get("/", ctrl.getLeads);
-router.get("/:id", ctrl.getLead);
-router.delete("/:id", ctrl.deleteLead);
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
-module.exports = router;
+// =====================
+// EXPORT AS FUNCTIONS ✅
+// =====================
+exports.uploadMultiple = () => upload.array("documents", 10);
+exports.uploadSingle = () => upload.single("document");

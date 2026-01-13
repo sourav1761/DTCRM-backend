@@ -98,230 +98,151 @@
 
 
 
-
-
-
-
 const mongoose = require("mongoose");
 
-// Transaction schema for commissions
+// ================= SCHEMAS =================
+
 const CommissionSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   amount: { type: Number, required: true },
-  mode: { 
-    type: String, 
-    enum: ["Cash", "Cheque", "UPI", "Bank Transfer", "Online"],
-    required: true 
-  },
+  mode: { type: String, enum: ["Cash", "Cheque", "UPI", "Bank Transfer", "Online"], required: true },
   remarks: { type: String }
 });
 
-// Other fee schema
 const OtherFeeSchema = new mongoose.Schema({
   description: { type: String, required: true },
   amount: { type: Number, required: true }
 });
 
-// Payment transaction schema
 const PaymentTransactionSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   amount: { type: Number, required: true },
-  mode: { 
-    type: String, 
-    enum: ["Cash", "Cheque", "UPI", "Bank Transfer", "Online"],
-    required: true 
-  },
+  mode: { type: String, enum: ["Cash", "Cheque", "UPI", "Bank Transfer", "Online"], required: true },
   purpose: { type: String },
   remarks: { type: String }
 });
 
-// Document upload schema
 const DocumentUploadSchema = new mongoose.Schema({
   fileName: { type: String, required: true },
   filePath: { type: String, required: true },
   uploadedAt: { type: Date, default: Date.now }
 });
 
-// Loan facility schema
 const LoanFacilitySchema = new mongoose.Schema({
   isActive: { type: Boolean, default: false },
-  clientName: { type: String },
-  aadharNumber: { type: String },
-  phoneNumber: { type: String },
+  clientName: String,
+  aadharNumber: String,
+  phoneNumber: String,
   documentUploads: [DocumentUploadSchema],
-  loanAmount: { type: Number },
-  extraFee: { type: Number },
-  loanDate: { type: Date },
-  totalTakenAmount: { type: Number }, // loanAmount + extraFee
-  givenOrPendingDate: { type: Date }
+  loanAmount: Number,
+  extraFee: Number,
+  loanDate: Date,
+  totalTakenAmount: Number,
+  givenOrPendingDate: Date
 });
 
-// Buyer/Seller schema
 const PartySchema = new mongoose.Schema({
-  name: { type: String },
-  phoneNumber: { type: String },
-  address: { type: String },
-  email: { type: String },
-  aadhar: { type: String },
-  pan: { type: String }
+  name: String,
+  phoneNumber: String,
+  address: String,
+  email: String,
+  aadhar: String,
+  pan: String
 });
 
-// Main Lead Schema
+// ================= MAIN SCHEMA =================
+
 const LeadSchema = new mongoose.Schema({
-  // Step 1: Basic Information
   customerName: { type: String, required: true },
   mobileNumber: { type: String, required: true },
-  email: { type: String },
-  address: { type: String },
-  reference: { 
-    type: String, 
-    enum: ["direct", "agent"],
-    default: "direct"
-  },
-  agentName: { type: String }, // Only if reference is "agent"
-  firstAmount: { type: Number }, // Declared first meeting amount (not included in calculations)
-  documentType: { 
-    type: String,
-    enum: [
-      "Sale Deed (SD + R)",
-      "Gift Deed (SD + R)",
-      "Release Deed (SD + R)",
-      "Co-ownership Deed (SD + R)",
-      "Consent Deed (SD + R)",
-      "Lease Deed (SD + R)",
-      "Power of Attorney (SD + R)",
-      "Will Deed (R)",
-      "EM (0.50%) (SD + R)",
-      "EC (0.25%) (SD + R)",
-      "RM (1.8%) (SD + R)",
-      "Rent Agreement (SD + R)",
-      "Sale Agreement (SD + R)",
-      "Other (SD)",
-      "E-Stamp (SD)",
-      "Certified Copy (R)"
-    ]
-  },
+  email: String,
+  address: String,
+  reference: { type: String, enum: ["direct", "agent"], default: "direct" },
+  agentName: String,
+  firstAmount: Number,
+  documentType: String,
   leadDate: { type: Date, required: true },
-  stepCompleted: { type: Number, default: 1 }, // Track current step (1-5)
-  
-  // Step 1.1: Loan/Credit Facility (Optional)
+  stepCompleted: { type: Number, default: 1 },
+
   loanFacility: { type: LoanFacilitySchema, default: null },
-  
-  // Step 2: Party Details
-  partyType: { 
-    type: String, 
-    enum: ["buyer", "seller", "individual", "both"],
-    default: "individual"
-  },
-  buyer: { type: PartySchema },
-  seller: { type: PartySchema },
-  individual: { type: PartySchema },
-  
-  // Step 3: Document Details
-  propertyLocation: { type: String },
-  documentNumber: { type: String },
-  documentStartingDate: { type: Date },
-  documentStatus: { 
-    type: String, 
-    enum: ["Draft", "Signed", "Submitted", "Registration Pending", "Registration Completed"],
-    default: "Draft"
-  },
+
+  partyType: { type: String, enum: ["buyer", "seller", "individual", "both"], default: "individual" },
+  buyer: PartySchema,
+  seller: PartySchema,
+  individual: PartySchema,
+
+  propertyLocation: String,
+  documentNumber: String,
+  documentStartingDate: Date,
+  documentStatus: { type: String, default: "Draft" },
   documentUploads: [DocumentUploadSchema],
-  
-  // Step 4: Payment Details
+
   stampDuty: { type: Number, default: 0 },
   registrationFee: { type: Number, default: 0 },
   mutationFee: { type: Number, default: 0 },
-  otherFees: [OtherFeeSchema], // Array of other fees with description
+  otherFees: [OtherFeeSchema],
   officeFee: { type: Number, default: 0 },
-  registrarCommission: [CommissionSchema], // Array of commission transactions
-  agentCommission: [CommissionSchema], // Array of commission transactions
+  registrarCommission: [CommissionSchema],
+  agentCommission: [CommissionSchema],
   paidTransactions: [PaymentTransactionSchema],
   pendingTransactions: [PaymentTransactionSchema],
-  
-  // Calculated amounts
+
   totalAmount: { type: Number, default: 0 },
   paidAmount: { type: Number, default: 0 },
   pendingAmount: { type: Number, default: 0 },
-  
-  // Step 5: Completion Details
-  completionDate: { type: Date },
-  successStatus: { 
-    type: String, 
-    enum: ["Successful", "Unsuccessful", "Pending"],
-    default: "Pending"
-  },
-  finalRemarks: { type: String },
-  
-  // Lead Status
-  leadStatus: { 
-    type: String, 
-    enum: ["New", "In Progress", "signed", "pending by our side", "pending by registrar", "pending by client", "completed"],
-    default: "New"
-  },
-  
-  // Timestamps
+
+  completionDate: Date,
+  successStatus: { type: String, default: "Pending" },
+  finalRemarks: String,
+
+  leadStatus: { type: String, default: "New" },
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  deletedAt: { type: Date } // Soft delete
+  deletedAt: Date
 });
 
-// Auto update timestamp
-LeadSchema.pre("save", function (next) {
+// ================= PRE SAVE (NO next) =================
+
+LeadSchema.pre("save", async function () {
   this.updatedAt = Date.now();
-  
-  // Calculate total amount before saving
-  if (this.isModified('stampDuty') || this.isModified('registrationFee') || 
-      this.isModified('mutationFee') || this.isModified('officeFee') ||
-      this.isModified('otherFees') || this.isModified('registrarCommission') ||
-      this.isModified('agentCommission')) {
-    
-    let total = 0;
-    
-    // Add basic fees
-    total += this.stampDuty || 0;
-    total += this.registrationFee || 0;
-    total += this.mutationFee || 0;
-    total += this.officeFee || 0;
-    
-    // Add other fees
-    if (this.otherFees && this.otherFees.length > 0) {
-      total += this.otherFees.reduce((sum, fee) => sum + (fee.amount || 0), 0);
-    }
-    
-    // Add registrar commissions
-    if (this.registrarCommission && this.registrarCommission.length > 0) {
-      total += this.registrarCommission.reduce((sum, comm) => sum + (comm.amount || 0), 0);
-    }
-    
-    // Add agent commissions
-    if (this.agentCommission && this.agentCommission.length > 0) {
-      total += this.agentCommission.reduce((sum, comm) => sum + (comm.amount || 0), 0);
-    }
-    
-    this.totalAmount = total;
-    
-    // Calculate pending amount
-    let paid = 0;
-    if (this.paidTransactions && this.paidTransactions.length > 0) {
-      paid = this.paidTransactions.reduce((sum, trans) => sum + (trans.amount || 0), 0);
-    }
-    this.paidAmount = paid;
-    this.pendingAmount = this.totalAmount - paid;
+
+  let total = 0;
+  total += this.stampDuty || 0;
+  total += this.registrationFee || 0;
+  total += this.mutationFee || 0;
+  total += this.officeFee || 0;
+
+  if (this.otherFees?.length) {
+    total += this.otherFees.reduce((s, f) => s + (f.amount || 0), 0);
   }
-  
-  // Calculate loan total amount
-  if (this.loanFacility && this.loanFacility.isActive) {
+  if (this.registrarCommission?.length) {
+    total += this.registrarCommission.reduce((s, c) => s + (c.amount || 0), 0);
+  }
+  if (this.agentCommission?.length) {
+    total += this.agentCommission.reduce((s, c) => s + (c.amount || 0), 0);
+  }
+
+  this.totalAmount = total;
+
+  let paid = 0;
+  if (this.paidTransactions?.length) {
+    paid = this.paidTransactions.reduce((s, t) => s + (t.amount || 0), 0);
+  }
+
+  this.paidAmount = paid;
+  this.pendingAmount = this.totalAmount - paid;
+
+  if (this.loanFacility?.isActive) {
     const loanAmount = this.loanFacility.loanAmount || 0;
     const extraFee = this.loanFacility.extraFee || 0;
     this.loanFacility.totalTakenAmount = loanAmount + extraFee;
   }
-  
-  next();
 });
 
-// Soft delete method
-LeadSchema.methods.softDelete = function() {
+// ================= SOFT DELETE =================
+
+LeadSchema.methods.softDelete = function () {
   this.deletedAt = Date.now();
   return this.save();
 };
