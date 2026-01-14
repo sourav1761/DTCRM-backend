@@ -82,6 +82,7 @@ mongoose
 // ROUTES
 // =========================
 console.log("📦 Loading Routes...");
+app.use("/api/auth", require("./routes/auth"));
 
 app.use("/api/leads", require("./routes/Lead"));      // lead APIs
 app.use("/api/wallet", require("./routes/wallet"));  // ✅ wallet APIs
