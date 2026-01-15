@@ -94,7 +94,10 @@ app.use("/api/wallet", (req, res, next) => {
 }, require("./routes/wallet"));
 
 
+app.use("/api/loans", require("./routes/loan"));
+
 app.use("/api/associates", require("./routes/associate"));
+
 
 // =========================
 // TEST
