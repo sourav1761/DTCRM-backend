@@ -34,7 +34,6 @@
 //   console.log("🚀 Server Running on Network");
 // });
 
-
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -45,11 +44,19 @@ const fs = require("fs");
 const app = express();
 
 // =========================
+// ENV CHECK
+// =========================
+if (!process.env.MONGO_URI) {
+  console.error("❌ MONGO_URI not found in .env");
+  process.exit(1);
+}
+
+// =========================
 // MIDDLEWARE
 // =========================
 app.use(
   cors({
-    origin: "*",
+    origin: "*", // 🔒 restrict in production
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   })
 );
@@ -64,7 +71,6 @@ const uploadsPath = path.join(__dirname, "..", "uploads");
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
 }
-
 app.use("/uploads", express.static(uploadsPath));
 
 // =========================
@@ -82,28 +88,39 @@ mongoose
 // ROUTES
 // =========================
 console.log("📦 Loading Routes...");
+
 app.use("/api/auth", require("./routes/auth"));
-
-app.use("/api/leads", require("./routes/Lead"));      // lead APIs
-// app.use("/api/wallet", require("./routes/wallet"));  // ✅ wallet APIs
-// console.log("👉 Trying to load wallet routes...");
-
-app.use("/api/wallet", (req, res, next) => {
-  console.log("🔥 Wallet middleware hit");
-  next();
-}, require("./routes/wallet"));
-
-
+app.use("/api/leads", require("./routes/Lead"));
 app.use("/api/loans", require("./routes/loan"));
-
 app.use("/api/associates", require("./routes/associate"));
+app.use("/api/payments", require("./routes/paymentHistoryRoutes"));
 
+// ⚠️ Debug only — remove in prod
+app.use(
+  "/api/wallet",
+  (req, res, next) => {
+    console.log("🔥 Wallet middleware hit");
+    next();
+  },
+  require("./routes/wallet")
+);
 
 // =========================
-// TEST
+// TEST ROUTE
 // =========================
 app.get("/api/test", (req, res) => {
   res.json({ success: true, message: "Server OK" });
+});
+
+// =========================
+// GLOBAL ERROR HANDLER
+// =========================
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err);
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
 });
 
 // =========================
