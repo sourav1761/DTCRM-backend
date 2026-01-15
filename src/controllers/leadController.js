@@ -741,6 +741,69 @@ const deleteFile = (filePath) => {
 // =========================
 //     CREATE LEAD STEP 1
 // =========================
+// exports.createLeadStep1 = async (req, res) => {
+//   try {
+//     const {
+//       customerName,
+//       mobileNumber,
+//       email,
+//       address,
+//       reference = "direct",
+//       agentName,
+//       declarationAmount,
+//       documentType,
+//       leadDate,
+//       action // "save" or "continue"
+//     } = req.body;
+
+//     // Validate required fields
+//     if (!customerName || !mobileNumber || !leadDate) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Customer name, mobile number, and lead date are required"
+//       });
+//     }
+
+//     const leadData = {
+//       customerName,
+//       mobileNumber,
+//       email: email || "",
+//       address: address || "",
+//       reference,
+//       agentName: reference === "associate" ? agentName : "",
+//       declarationAmount: declarationAmount ? parseFloat(declarationAmount) : 0,
+//       documentType: documentType || "",
+//       leadDate: new Date(leadDate),
+//       stepCompleted: action === "continue" ? 1 : 0,
+//       isDraft: action === "save" ? true : false,
+//       leadStatus: action === "save" ? "Draft" : "New"
+//     };
+
+//     const lead = await Lead.create(leadData);
+
+//     res.status(201).json({
+//       success: true,
+//       message: action === "continue"
+//         ? "Lead created successfully, continue to next step"
+//         : "Lead saved as draft",
+//       lead,
+//       nextStep: action === "continue" ? 2 : null
+//     });
+//   } catch (err) {
+//     if (err.code === 11000) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Mobile number already exists"
+//       });
+//     }
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+
+// =========================
+//     CREATE LEAD STEP 1
+// =========================
 exports.createLeadStep1 = async (req, res) => {
   try {
     const {
@@ -750,7 +813,7 @@ exports.createLeadStep1 = async (req, res) => {
       address,
       reference = "direct",
       agentName,
-      declarationAmount,
+      declarationAmount, // Changed from firstAmount to declarationAmount
       documentType,
       leadDate,
       action // "save" or "continue"
@@ -771,7 +834,7 @@ exports.createLeadStep1 = async (req, res) => {
       address: address || "",
       reference,
       agentName: reference === "associate" ? agentName : "",
-      declarationAmount: declarationAmount ? parseFloat(declarationAmount) : 0,
+      declarationAmount: declarationAmount ? parseFloat(declarationAmount) : 0, // Updated field name
       documentType: documentType || "",
       leadDate: new Date(leadDate),
       stepCompleted: action === "continue" ? 1 : 0,
