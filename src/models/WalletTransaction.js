@@ -24,6 +24,30 @@
 // module.exports = mongoose.model("WalletTransaction", WalletTransactionSchema);
 
 
+// const mongoose = require("mongoose");
+
+// const WalletTransactionSchema = new mongoose.Schema({
+//   type: {
+//     type: String,
+//     enum: ["deposit", "withdraw"],
+//     required: true,
+//   },
+
+//   amount: { type: Number, required: true },
+
+//   method: { type: String },
+//   reference: { type: String },
+
+//   autoDeduct: { type: Boolean, default: false },
+//   autoRefund: { type: Boolean, default: false },
+
+//   createdAt: { type: Date, default: Date.now },
+// });
+
+// module.exports = mongoose.model("WalletTransaction", WalletTransactionSchema);
+
+
+
 const mongoose = require("mongoose");
 
 const WalletTransactionSchema = new mongoose.Schema({
@@ -34,12 +58,8 @@ const WalletTransactionSchema = new mongoose.Schema({
   },
 
   amount: { type: Number, required: true },
-
   method: { type: String },
   reference: { type: String },
-
-  autoDeduct: { type: Boolean, default: false },
-  autoRefund: { type: Boolean, default: false },
 
   createdAt: { type: Date, default: Date.now },
 });

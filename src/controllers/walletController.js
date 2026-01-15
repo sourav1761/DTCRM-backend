@@ -221,17 +221,27 @@
 
 
 
-
-
-
-
-
 const WalletTransaction = require("../models/WalletTransaction");
+const SampadaWallet = require("../models/SampadaWallet");
 const StampDutyPayment = require("../models/StampDutyPayment");
-const { getWalletBalance } = require("../utils/walletHelper");
 
 // ==========================
-// DEPOSIT
+// HELPER — ENSURE SAMPADA WALLET EXISTS
+// ==========================
+const getSampadaWallet = async () => {
+  let wallet = await SampadaWallet.findOne();
+  if (!wallet) {
+    wallet = await SampadaWallet.create({
+      registrationFee: 0,
+      stampDutyFee: 0,
+      mutationFee: 0,
+    });
+  }
+  return wallet;
+};
+
+// ==========================
+// CURRENT ACCOUNT – DEPOSIT
 // ==========================
 exports.addDeposit = async (req, res) => {
   try {
@@ -248,30 +258,42 @@ exports.addDeposit = async (req, res) => {
       reference,
     });
 
-    res.status(201).json({ success: true, tx });
+    res.json({ success: true, tx });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // ==========================
-// WITHDRAW
+// CURRENT ACCOUNT – WITHDRAW
 // ==========================
 exports.addWithdraw = async (req, res) => {
   try {
     const { amount, method, reference } = req.body;
 
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ success: false, message: "Invalid amount" });
-    }
+    const agg = await WalletTransaction.aggregate([
+      {
+        $group: {
+          _id: "$type",
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
 
-    const wallet = await getWalletBalance();
+    let deposit = 0;
+    let withdraw = 0;
 
-    if (amount > wallet.currentBalance) {
-      return res.status(400).json({
-        success: false,
-        message: `Insufficient balance. Available: ${wallet.currentBalance}`,
-      });
+    agg.forEach((a) => {
+      if (a._id === "deposit") deposit = a.total;
+      if (a._id === "withdraw") withdraw = a.total;
+    });
+
+    const balance = deposit - withdraw;
+
+    if (amount > balance) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Insufficient balance" });
     }
 
     const tx = await WalletTransaction.create({
@@ -281,90 +303,70 @@ exports.addWithdraw = async (req, res) => {
       reference,
     });
 
-    res.status(201).json({ success: true, tx });
+    res.json({ success: true, tx });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // ==========================
-// BALANCE (2 BLOCKS)
+// ADD AMOUNT TO SAMPADA WALLET
 // ==========================
-exports.getBalance = async (req, res) => {
+exports.addSampadaAmount = async (req, res) => {
   try {
-    const wallet = await getWalletBalance();
+    const { registrationFee = 0, stampDutyFee = 0, mutationFee = 0 } = req.body;
 
-    const agg = await StampDutyPayment.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalStampDuty: { $sum: "$stampDutyAmount" },
-          totalReturn: { $sum: "$estimatedReturn" },
-        },
-      },
-    ]);
+    const wallet = await getSampadaWallet();
 
-    const data = agg[0] || { totalStampDuty: 0, totalReturn: 0 };
+    wallet.registrationFee += Number(registrationFee);
+    wallet.stampDutyFee += Number(stampDutyFee);
+    wallet.mutationFee += Number(mutationFee);
 
-    res.json({
-      success: true,
-      block1: {
-        currentBalance: wallet.currentBalance,
-      },
-      block2: {
-        stampDutyPaid: data.totalStampDuty,
-        estimatedReturn: data.totalReturn,
-      },
-    });
+    wallet.updatedAt = new Date();
+    await wallet.save();
+
+    res.json({ success: true, wallet });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // ==========================
-// RECENT TRANSACTIONS
+// PAY STAMP DUTY TO GOVERNMENT (1.5% RETURN)
 // ==========================
-exports.getRecentTransactions = async (req, res) => {
+exports.payStampDuty = async (req, res) => {
   try {
-    const { limit = 20 } = req.query;
+    const { amount, description, paidDate } = req.body;
 
-    const txs = await WalletTransaction.find()
-      .sort({ createdAt: -1 })
-      .limit(Number(limit));
-
-    res.json({ success: true, txs });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// ==========================
-// ADD STAMP DUTY PAYMENT
-// ==========================
-exports.addStampDutyPayment = async (req, res) => {
-  try {
-    const { name, documentType, stampDutyAmount, paidDate } = req.body;
-
-    if (!name || !documentType || !stampDutyAmount || !paidDate) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing fields" });
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ success: false, message: "Invalid amount" });
     }
 
-    const estimatedReturn = stampDutyAmount * 0.015;
+    const wallet = await getSampadaWallet();
+
+    if (wallet.stampDutyFee < amount) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Insufficient stamp duty balance" });
+    }
+
+    const returnAmount = Number((amount * 0.015).toFixed(2));
+
+    wallet.stampDutyFee = wallet.stampDutyFee - amount + returnAmount;
+    await wallet.save();
 
     const payment = await StampDutyPayment.create({
-      name,
-      documentType,
-      stampDutyAmount,
-      estimatedReturn,
+      amountPaid: amount,
+      returnAmount,
+      description,
       paidDate,
     });
 
-    res.status(201).json({
+    res.json({
       success: true,
       payment,
-      estimatedReturn,
+      returnAmount,
+      updatedStampDutyBalance: wallet.stampDutyFee,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -372,13 +374,47 @@ exports.addStampDutyPayment = async (req, res) => {
 };
 
 // ==========================
-// LIST STAMP DUTY PAYMENTS
+// GET BALANCE
 // ==========================
-exports.getStampDutyPayments = async (req, res) => {
-  try {
-    const list = await StampDutyPayment.find().sort({ createdAt: -1 });
-    res.json({ success: true, list });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+exports.getBalance = async (req, res) => {
+  const agg = await WalletTransaction.aggregate([
+    {
+      $group: {
+        _id: "$type",
+        total: { $sum: "$amount" },
+      },
+    },
+  ]);
+
+  let deposit = 0;
+  let withdraw = 0;
+
+  agg.forEach((a) => {
+    if (a._id === "deposit") deposit = a.total;
+    if (a._id === "withdraw") withdraw = a.total;
+  });
+
+  const wallet = await getSampadaWallet();
+
+  res.json({
+    success: true,
+    currentAccount: deposit - withdraw,
+    sampadaWallet: {
+      registrationFee: wallet.registrationFee,
+      stampDutyFee: wallet.stampDutyFee,
+      mutationFee: wallet.mutationFee,
+      total:
+        wallet.registrationFee +
+        wallet.stampDutyFee +
+        wallet.mutationFee,
+    },
+  });
+};
+
+// ==========================
+// STAMP DUTY HISTORY
+// ==========================
+exports.getStampDutyHistory = async (req, res) => {
+  const list = await StampDutyPayment.find().sort({ createdAt: -1 });
+  res.json({ success: true, list });
 };

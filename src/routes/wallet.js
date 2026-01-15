@@ -19,24 +19,27 @@
 
 
 
-
-
-
-
-
-
 const express = require("express");
 const router = express.Router();
-const walletCtrl = require("../controllers/walletController");
+const ctrl = require("../controllers/walletController");
 
-router.post("/deposit", walletCtrl.addDeposit);
-router.post("/withdraw", walletCtrl.addWithdraw);
+console.log("🔥 Wallet routes loaded");
 
-router.get("/balance", walletCtrl.getBalance);
-router.get("/recent", walletCtrl.getRecentTransactions);
+// TEST
+router.post("/test", (req, res) => {
+  res.json({ success: true, message: "Wallet API working" });
+});
 
-// ⭐ Stamp Duty Page APIs
-router.post("/stamp-duty", walletCtrl.addStampDutyPayment);
-router.get("/stamp-duty", walletCtrl.getStampDutyPayments);
+// Sampada Wallet
+router.post("/sampada/add", ctrl.addSampadaAmount);
+router.post("/sampada/stamp-duty/pay", ctrl.payStampDuty);
+
+// Current Account
+router.post("/deposit", ctrl.addDeposit);
+router.post("/withdraw", ctrl.addWithdraw);
+
+// Info
+router.get("/balance", ctrl.getBalance);
+router.get("/stamp-duty/history", ctrl.getStampDutyHistory);
 
 module.exports = router;

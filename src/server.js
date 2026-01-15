@@ -85,7 +85,15 @@ console.log("📦 Loading Routes...");
 app.use("/api/auth", require("./routes/auth"));
 
 app.use("/api/leads", require("./routes/Lead"));      // lead APIs
-app.use("/api/wallet", require("./routes/wallet"));  // ✅ wallet APIs
+// app.use("/api/wallet", require("./routes/wallet"));  // ✅ wallet APIs
+// console.log("👉 Trying to load wallet routes...");
+
+app.use("/api/wallet", (req, res, next) => {
+  console.log("🔥 Wallet middleware hit");
+  next();
+}, require("./routes/wallet"));
+
+
 app.use("/api/associates", require("./routes/associate"));
 
 // =========================
