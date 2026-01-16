@@ -105,72 +105,7 @@
 
 
 
-
 const Loan = require("../models/Loan");
-
-// ==========================
-// CREATE LOAN
-// ==========================
-// exports.createLoan = async (req, res) => {
-//   try {
-//     const {
-//       clientName,
-//       mobileNumber,
-//       aadharCard,
-//       panCard,
-//       loanType,
-//       loanAmount,
-//       extraFee = 0,
-//       loanDate,
-//       pendingAmountDate,
-//     } = req.body;
-
-//     if (
-//       !clientName ||
-//       !mobileNumber ||
-//       !aadharCard ||
-//       !panCard ||
-//       !loanType ||
-//       !loanAmount ||
-//       !loanDate ||
-//       !pendingAmountDate
-//     ) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Missing required fields" });
-//     }
-
-//     const totalRecoverableAmount =
-//       Number(loanAmount) + Number(extraFee);
-
-//     const pendingAmount = totalRecoverableAmount;
-
-//     const documents = (req.files || []).map((file) => ({
-//       fileName: file.originalname,
-//       filePath: `/uploads/loans/${file.filename}`,
-//       fileType: file.mimetype,
-//     }));
-
-//     const loan = await Loan.create({
-//       clientName,
-//       mobileNumber,
-//       aadharCard,
-//       panCard,
-//       loanType,
-//       loanAmount,
-//       extraFee,
-//       loanDate,
-//       totalRecoverableAmount,
-//       pendingAmount,
-//       pendingAmountDate,
-//       documents,
-//     });
-
-//     res.status(201).json({ success: true, loan });
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: err.message });
-//   }
-// };
 
 
 
