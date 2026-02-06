@@ -1,0 +1,756 @@
+{
+  "info": {
+    "name": "DTCRM Leads API - Complete Collection",
+    "description": "Complete API collection for DTCRM Leads management system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/leads",
+      "type": "string"
+    },
+    {
+      "key": "leadId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "CREATE Operations",
+      "item": [
+        {
+          "name": "Create Lead Step 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Doe\",\n  \"mobileNumber\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"address\": \"123 Main Street, City\",\n  \"reference\": \"direct\",\n  \"agentName\": \"Agent Name\",\n  \"declarationAmount\": 500000,\n  \"documentType\": \"Sale Deed\",\n  \"leadDate\": \"2024-01-15\",\n  \"action\": \"continue\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": ["{{baseUrl}}"]
+            }
+          }
+        },
+        {
+          "name": "Save as Draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Jane Smith\",\n  \"mobileNumber\": \"9876543211\",\n  \"email\": \"jane@example.com\",\n  \"leadDate\": \"2024-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/draft",
+              "host": ["{{baseUrl}}"],
+              "path": ["draft"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "READ Operations",
+      "item": [
+        {
+          "name": "Get All Leads",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}?page=1&limit=50&search=John&status=New",
+              "host": ["{{baseUrl}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "search",
+                  "value": "John"
+                },
+                {
+                  "key": "status",
+                  "value": "New"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Lead by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Lead by Custom ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/id/LD2024010001",
+              "host": ["{{baseUrl}}"],
+              "path": ["id", "LD2024010001"]
+            }
+          }
+        },
+        {
+          "name": "Search Leads",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/search?q=John",
+              "host": ["{{baseUrl}}"],
+              "path": ["search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "John"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Recent Leads",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/recent/10",
+              "host": ["{{baseUrl}}"],
+              "path": ["recent", "10"]
+            }
+          }
+        },
+        {
+          "name": "Get Leads by Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/status/New",
+              "host": ["{{baseUrl}}"],
+              "path": ["status", "New"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "UPDATE Operations",
+      "item": [
+        {
+          "name": "General Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Doe Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"leadStatus\": \"In Progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/update",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "update"]
+            }
+          }
+        },
+        {
+          "name": "Save as Draft",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentStep\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/save-draft",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "save-draft"]
+            }
+          }
+        },
+        {
+          "name": "Complete Lead",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completionDate\": \"2024-01-20\",\n  \"successStatus\": \"yes\",\n  \"finalRemarks\": \"Successfully completed all documentation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "complete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "STEP Management",
+      "item": [
+        {
+          "name": "Continue to Next Step",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stepNumber\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/continue-step",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "continue-step"]
+            }
+          }
+        },
+        {
+          "name": "Update Step 1",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Doe Updated\",\n  \"mobileNumber\": \"9876543210\",\n  \"email\": \"john.updated@example.com\",\n  \"address\": \"Updated Address\",\n  \"reference\": \"associate\",\n  \"agentName\": \"New Agent\",\n  \"declarationAmount\": 600000,\n  \"documentType\": \"Agreement\",\n  \"leadDate\": \"2024-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Step 2 - Party Details",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partyType\": \"both\",\n  \"buyerName\": \"Buyer Name\",\n  \"buyerPhone\": \"9876543212\",\n  \"buyerAddress\": \"Buyer Address\",\n  \"buyerEmail\": \"buyer@example.com\",\n  \"buyerAadhar\": \"123456789012\",\n  \"buyerPan\": \"ABCDE1234F\",\n  \"sellerName\": \"Seller Name\",\n  \"sellerPhone\": \"9876543213\",\n  \"sellerAddress\": \"Seller Address\",\n  \"sellerEmail\": \"seller@example.com\",\n  \"sellerAadhar\": \"123456789013\",\n  \"sellerPan\": \"FGHIJ5678K\",\n  \"ownerName\": \"Property Owner\",\n  \"bankName\": \"State Bank of India\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step", "2"]
+            }
+          }
+        },
+        {
+          "name": "Update Step 3 - Property Details",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyLocation\": \"Plot No. 123, Sector 45, City\",\n  \"documentNumber\": \"DOC123456\",\n  \"documentStartingDate\": \"2024-01-10\",\n  \"documentStatus\": \"In Progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step/3",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step", "3"]
+            }
+          }
+        },
+        {
+          "name": "Update Step 4 - Financial Details",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stampDuty\": 25000,\n  \"registrationFee\": 5000,\n  \"mutationFee\": 2000,\n  \"officeFee\": 3000,\n  \"manualTotalAmount\": 35000,\n  \"manualPaidAmount\": 20000,\n  \"manualPaidDate\": \"2024-01-16\",\n  \"manualPaymentMode\": \"UPI\",\n  \"manualPaymentRemark\": \"Partial payment received\",\n  \"manualPendingAmount\": 15000,\n  \"manualPendingDate\": \"2024-01-25\",\n  \"manualPendingRemark\": \"Balance payment pending\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step/4",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step", "4"]
+            }
+          }
+        },
+        {
+          "name": "Update Step 5 - Completion",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completionDate\": \"2024-01-20\",\n  \"successStatus\": \"yes\",\n  \"finalRemarks\": \"All documents completed successfully\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step/5",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step", "5"]
+            }
+          }
+        },
+        {
+          "name": "Update Manual Amounts",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"manualTotalAmount\": 35000,\n  \"manualPaidAmount\": 20000,\n  \"manualPaidDate\": \"2024-01-16\",\n  \"manualPaymentMode\": \"UPI\",\n  \"manualPaymentRemark\": \"Partial payment\",\n  \"manualPendingAmount\": 15000,\n  \"manualPendingDate\": \"2024-01-25\",\n  \"manualPendingRemark\": \"Balance pending\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/manual-amounts",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "manual-amounts"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "FILE Operations",
+      "item": [
+        {
+          "name": "Upload Documents",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "documentType",
+                  "value": "Property Papers",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "documents"]
+            }
+          }
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/documents/documentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "documents", "documentId"]
+            }
+          }
+        },
+        {
+          "name": "Add Loan Facility",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "clientName",
+                  "value": "Loan Client",
+                  "type": "text"
+                },
+                {
+                  "key": "aadharNumber",
+                  "value": "123456789012",
+                  "type": "text"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "9876543214",
+                  "type": "text"
+                },
+                {
+                  "key": "loanAmount",
+                  "value": "100000",
+                  "type": "text"
+                },
+                {
+                  "key": "extraFee",
+                  "value": "5000",
+                  "type": "text"
+                },
+                {
+                  "key": "loanDate",
+                  "value": "2024-01-15",
+                  "type": "text"
+                },
+                {
+                  "key": "givenOrPendingDate",
+                  "value": "2024-01-20",
+                  "type": "text"
+                },
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/loan-facility",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "loan-facility"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PAYMENT Operations",
+      "item": [
+        {
+          "name": "Add Payment Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2024-01-16\",\n  \"amount\": 15000,\n  \"mode\": \"UPI\",\n  \"purpose\": \"Stamp Duty Payment\",\n  \"remarks\": \"Payment for stamp duty\",\n  \"type\": \"paid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Update Payment Transaction",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 16000,\n  \"mode\": \"Bank Transfer\",\n  \"remarks\": \"Updated payment amount\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/payments/paymentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "payments", "paymentId"]
+            }
+          }
+        },
+        {
+          "name": "Delete Payment Transaction",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/payments/paymentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "payments", "paymentId"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "COMMISSION Operations",
+      "item": [
+        {
+          "name": "Add Registrar Commission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2024-01-17\",\n  \"amount\": 2000,\n  \"mode\": \"Cash\",\n  \"remarks\": \"Registrar commission for document processing\",\n  \"status\": \"unpaid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/commission/registrar",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "commission", "registrar"]
+            }
+          }
+        },
+        {
+          "name": "Add Agent Commission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2024-01-17\",\n  \"amount\": 3000,\n  \"mode\": \"UPI\",\n  \"remarks\": \"Agent commission\",\n  \"status\": \"paid\",\n  \"agentName\": \"Agent Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/commission/agent",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "commission", "agent"]
+            }
+          }
+        },
+        {
+          "name": "Update Commission",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 2500,\n  \"status\": \"paid\",\n  \"remarks\": \"Updated commission amount\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/commission/registrar/commissionId",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "commission", "registrar", "commissionId"]
+            }
+          }
+        },
+        {
+          "name": "Delete Commission",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/commission/registrar/commissionId",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "commission", "registrar", "commissionId"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OTHER FEE Operations",
+      "item": [
+        {
+          "name": "Add Other Fee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Legal Consultation Fee\",\n  \"amount\": 5000,\n  \"date\": \"2024-01-16\",\n  \"status\": \"unpaid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/other-fee",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "other-fee"]
+            }
+          }
+        },
+        {
+          "name": "Update Other Fee",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated Legal Fee\",\n  \"amount\": 5500,\n  \"status\": \"paid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/other-fee/feeId",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "other-fee", "feeId"]
+            }
+          }
+        },
+        {
+          "name": "Delete Other Fee",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/other-fee/feeId",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "other-fee", "feeId"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "BULK Operations",
+      "item": [
+        {
+          "name": "Update Bulk Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leadIds\": [\"65a1b2c3d4e5f6789012345\", \"65a1b2c3d4e5f6789012346\"],\n  \"status\": \"In Progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bulk-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["bulk-status"]
+            }
+          }
+        },
+        {
+          "name": "Duplicate Lead",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/duplicate",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "duplicate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE Operations",
+      "item": [
+        {
+          "name": "Soft Delete Lead",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}"]
+            }
+          }
+        },
+        {
+          "name": "Hard Delete Lead",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/hard",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "hard"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "STATISTICS",
+      "item": [
+        {
+          "name": "Get Lead Statistics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/stats/overview",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "overview"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

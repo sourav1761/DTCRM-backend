@@ -5,10 +5,16 @@ const { uploadLoanDocs } = require("../middleware/loanUpload.middleware");
 
 console.log("🔥 Loan routes loaded");
 
+// CRUD Operations
 router.post("/", uploadLoanDocs, ctrl.createLoan);
 router.get("/", ctrl.getLoans);
 router.get("/:id", ctrl.getLoanById);
+router.put("/:id", ctrl.updateLoan);
 router.delete("/:id", ctrl.deleteLoan);
+
+// Additional Operations
+router.get("/client/:clientName", ctrl.getLoansByClient);
+router.patch("/:id/pending", ctrl.updatePendingAmount);
 
 module.exports = router;
 

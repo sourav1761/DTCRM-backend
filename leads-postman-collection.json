@@ -1,0 +1,333 @@
+{
+  "info": {
+    "name": "DTCRM Leads API - Updated Collection",
+    "description": "Complete API collection for DTCRM Leads with exact field requirements",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/leads",
+      "type": "string"
+    },
+    {
+      "key": "leadId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "STEP 1 - Basic Information",
+      "item": [
+        {
+          "name": "Create Lead Step 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Doe\",\n  \"mobileNumber\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"address\": \"123 Main Street, City\",\n  \"sourceOfEntry\": \"reference\",\n  \"referenceName\": \"Agent Smith\",\n  \"declarationAmount\": 500000,\n  \"documentType\": \"Sale Deed\",\n  \"leadStatus\": \"New\",\n  \"date\": \"2024-01-15\",\n  \"action\": \"continue\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": ["{{baseUrl}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Step 1",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Doe Updated\",\n  \"mobileNumber\": \"9876543210\",\n  \"email\": \"john.updated@example.com\",\n  \"address\": \"Updated Address\",\n  \"sourceOfEntry\": \"direct\",\n  \"referenceName\": \"\",\n  \"declarationAmount\": 600000,\n  \"documentType\": \"Agreement\",\n  \"leadStatus\": \"New\",\n  \"date\": \"2024-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step1",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "STEP 2 - Party Details",
+      "item": [
+        {
+          "name": "Update Step 2",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buyers\": [\n    {\n      \"name\": \"Buyer One\",\n      \"phoneNumber\": \"9876543211\",\n      \"address\": \"Buyer Address 1\",\n      \"email\": \"buyer1@example.com\",\n      \"aadhar\": \"123456789012\",\n      \"pan\": \"ABCDE1234F\"\n    },\n    {\n      \"name\": \"Buyer Two\",\n      \"phoneNumber\": \"9876543212\",\n      \"address\": \"Buyer Address 2\",\n      \"email\": \"buyer2@example.com\",\n      \"aadhar\": \"123456789013\",\n      \"pan\": \"FGHIJ5678K\"\n    }\n  ],\n  \"sellers\": [\n    {\n      \"name\": \"Seller One\",\n      \"phoneNumber\": \"9876543213\",\n      \"address\": \"Seller Address 1\",\n      \"email\": \"seller1@example.com\",\n      \"aadhar\": \"123456789014\",\n      \"pan\": \"LMNOP9012Q\"\n    }\n  ],\n  \"individual\": {\n    \"name\": \"Individual Name\",\n    \"phoneNumber\": \"9876543214\",\n    \"address\": \"Individual Address\",\n    \"email\": \"individual@example.com\",\n    \"aadhar\": \"123456789015\",\n    \"pan\": \"RSTUV3456W\"\n  },\n  \"documentTypeOption\": \"EM_0.50\",\n  \"ownerName\": \"Property Owner\",\n  \"bankName\": \"State Bank of India\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step2",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step2"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "STEP 3 - Property Details",
+      "item": [
+        {
+          "name": "Update Step 3",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyLocation\": \"Plot No. 123, Sector 45, City\",\n  \"documentNumber\": \"DOC123456\",\n  \"documentStartingDate\": \"2024-01-10\",\n  \"documentStatus\": \"In Progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step3",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step3"]
+            }
+          }
+        },
+        {
+          "name": "Upload Lead Documents",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "documents"]
+            }
+          }
+        },
+        {
+          "name": "Delete Lead Document",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/documents/documentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "documents", "documentId"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "STEP 4 - Financial Details",
+      "item": [
+        {
+          "name": "Update Step 4",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stampDuty\": 25000,\n  \"registrationFee\": 5000,\n  \"mutationFee\": 2000,\n  \"otherFees\": [\n    {\n      \"description\": \"Legal Fee\",\n      \"amount\": 3000,\n      \"date\": \"2024-01-16\"\n    },\n    {\n      \"description\": \"Processing Fee\",\n      \"amount\": 1500,\n      \"date\": \"2024-01-17\"\n    }\n  ],\n  \"officeFee\": 2500,\n  \"registrarCommission\": [\n    {\n      \"amount\": 4000,\n      \"date\": \"2024-01-18\",\n      \"description\": \"Registrar commission for processing\"\n    }\n  ],\n  \"agentCommission\": [\n    {\n      \"amount\": 3500,\n      \"date\": \"2024-01-19\",\n      \"description\": \"Agent commission\"\n    }\n  ],\n  \"paidAmount\": {\n    \"amount\": 20000,\n    \"mode\": \"UPI\",\n    \"remark\": \"Partial payment received\",\n    \"date\": \"2024-01-20\"\n  },\n  \"pendingAmount\": {\n    \"amount\": 26500,\n    \"date\": \"2024-01-25\",\n    \"remark\": \"Balance payment pending\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step4",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step4"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "STEP 5 - Completion",
+      "item": [
+        {
+          "name": "Complete Lead Step 5",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completionDate\": \"2024-01-25\",\n  \"successStatus\": \"yes\",\n  \"remark\": \"Lead completed successfully with all documentation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/step5",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "step5"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "READ Operations",
+      "item": [
+        {
+          "name": "Get All Leads",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}?page=1&limit=50&search=John&status=New",
+              "host": ["{{baseUrl}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "search",
+                  "value": "John"
+                },
+                {
+                  "key": "status",
+                  "value": "New"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Lead by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Lead Statistics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "UPDATE Operations",
+      "item": [
+        {
+          "name": "General Update (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Doe Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"leadStatus\": \"In Progress\",\n  \"address\": \"New Address\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}"]
+            }
+          }
+        },
+        {
+          "name": "General Update (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Doe Patched\",\n  \"leadStatus\": \"In Progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE Operations",
+      "item": [
+        {
+          "name": "Soft Delete Lead",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}"]
+            }
+          }
+        },
+        {
+          "name": "Hard Delete Lead",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/{{leadId}}/hard",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{leadId}}", "hard"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

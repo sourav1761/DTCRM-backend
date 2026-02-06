@@ -1,0 +1,159 @@
+{
+  "sampleLoans": [
+    {
+      "clientName": "Rajesh Kumar",
+      "mobileNumber": "9876543210",
+      "aadharCard": "1234-5678-9012",
+      "panCard": "ABCDE1234F",
+      "loanType": "Personal Loan",
+      "loanAmount": 50000,
+      "extraFee": 2500,
+      "totalRecoverableAmount": 52500,
+      "pendingAmount": 52500,
+      "loanDate": "2024-01-15",
+      "pendingAmountDate": "2024-12-31",
+      "documents": []
+    },
+    {
+      "clientName": "Priya Sharma",
+      "mobileNumber": "9123456789",
+      "aadharCard": "2345-6789-0123",
+      "panCard": "BCDEF2345G",
+      "loanType": "Home Loan",
+      "loanAmount": 500000,
+      "extraFee": 15000,
+      "totalRecoverableAmount": 515000,
+      "pendingAmount": 400000,
+      "loanDate": "2023-06-10",
+      "pendingAmountDate": "2025-06-10",
+      "documents": []
+    },
+    {
+      "clientName": "Amit Patel",
+      "mobileNumber": "9234567890",
+      "aadharCard": "3456-7890-1234",
+      "panCard": "CDEFG3456H",
+      "loanType": "Car Loan",
+      "loanAmount": 300000,
+      "extraFee": 12000,
+      "totalRecoverableAmount": 312000,
+      "pendingAmount": 250000,
+      "loanDate": "2023-09-20",
+      "pendingAmountDate": "2024-09-20",
+      "documents": []
+    },
+    {
+      "clientName": "Sunita Verma",
+      "mobileNumber": "9345678901",
+      "aadharCard": "4567-8901-2345",
+      "panCard": "DEFGH4567I",
+      "loanType": "Business Loan",
+      "loanAmount": 750000,
+      "extraFee": 25000,
+      "totalRecoverableAmount": 775000,
+      "pendingAmount": 775000,
+      "loanDate": "2024-02-01",
+      "pendingAmountDate": "2025-02-01",
+      "documents": []
+    },
+    {
+      "clientName": "Vikram Singh",
+      "mobileNumber": "9456789012",
+      "aadharCard": "5678-9012-3456",
+      "panCard": "EFGHI5678J",
+      "loanType": "Education Loan",
+      "loanAmount": 200000,
+      "extraFee": 8000,
+      "totalRecoverableAmount": 208000,
+      "pendingAmount": 150000,
+      "loanDate": "2023-04-15",
+      "pendingAmountDate": "2024-04-15",
+      "documents": []
+    },
+    {
+      "clientName": "Meera Joshi",
+      "mobileNumber": "9567890123",
+      "aadharCard": "6789-0123-4567",
+      "panCard": "FGHIJ6789K",
+      "loanType": "Gold Loan",
+      "loanAmount": 100000,
+      "extraFee": 3000,
+      "totalRecoverableAmount": 103000,
+      "pendingAmount": 80000,
+      "loanDate": "2023-11-10",
+      "pendingAmountDate": "2024-11-10",
+      "documents": []
+    },
+    {
+      "clientName": "Ravi Gupta",
+      "mobileNumber": "9678901234",
+      "aadharCard": "7890-1234-5678",
+      "panCard": "GHIJK7890L",
+      "loanType": "Agricultural Loan",
+      "loanAmount": 400000,
+      "extraFee": 18000,
+      "totalRecoverableAmount": 418000,
+      "pendingAmount": 350000,
+      "loanDate": "2023-03-25",
+      "pendingAmountDate": "2024-03-25",
+      "documents": []
+    }
+  ],
+  "testRequests": {
+    "createLoan": {
+      "method": "POST",
+      "url": "http://localhost:5000/api/loans",
+      "headers": {
+        "Content-Type": "multipart/form-data"
+      },
+      "body": {
+        "clientName": "Test Client",
+        "mobileNumber": "9999999999",
+        "aadharCard": "9999-9999-9999",
+        "panCard": "ZZZZZ9999Z",
+        "loanType": "Personal Loan",
+        "loanAmount": 25000,
+        "extraFee": 1000,
+        "loanDate": "2024-01-20",
+        "pendingAmountDate": "2024-12-20"
+      }
+    },
+    "getAllLoans": {
+      "method": "GET",
+      "url": "http://localhost:5000/api/loans"
+    },
+    "getLoanById": {
+      "method": "GET",
+      "url": "http://localhost:5000/api/loans/{loan_id}"
+    },
+    "updateLoan": {
+      "method": "PUT",
+      "url": "http://localhost:5000/api/loans/{loan_id}",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "loanAmount": 30000,
+        "extraFee": 1500
+      }
+    },
+    "deleteLoan": {
+      "method": "DELETE",
+      "url": "http://localhost:5000/api/loans/{loan_id}"
+    },
+    "getLoansByClient": {
+      "method": "GET",
+      "url": "http://localhost:5000/api/loans/client/Rajesh Kumar"
+    },
+    "updatePendingAmount": {
+      "method": "PATCH",
+      "url": "http://localhost:5000/api/loans/{loan_id}/pending",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "pendingAmount": 20000
+      }
+    }
+  }
+}

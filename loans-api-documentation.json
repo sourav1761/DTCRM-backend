@@ -1,0 +1,186 @@
+{
+  "loansAPI": {
+    "baseURL": "/api/loans",
+    "endpoints": {
+      "createLoan": {
+        "method": "POST",
+        "url": "/api/loans",
+        "description": "Create a new loan",
+        "contentType": "multipart/form-data",
+        "requestBody": {
+          "clientName": "string (required)",
+          "mobileNumber": "string (required)",
+          "aadharCard": "string (required)",
+          "panCard": "string (required)",
+          "loanType": "string (required)",
+          "loanAmount": "number (required)",
+          "extraFee": "number (optional, default: 0)",
+          "loanDate": "date (required)",
+          "pendingAmountDate": "date (required)",
+          "documents": "files[] (optional)"
+        },
+        "response": {
+          "success": true,
+          "loan": {
+            "_id": "ObjectId",
+            "clientName": "string",
+            "mobileNumber": "string",
+            "aadharCard": "string",
+            "panCard": "string",
+            "loanType": "string",
+            "loanAmount": "number",
+            "extraFee": "number",
+            "totalRecoverableAmount": "number",
+            "pendingAmount": "number",
+            "pendingAmountDate": "date",
+            "loanDate": "date",
+            "documents": [
+              {
+                "fileName": "string",
+                "filePath": "string",
+                "fileType": "string"
+              }
+            ],
+            "createdAt": "date"
+          }
+        }
+      },
+      "getAllLoans": {
+        "method": "GET",
+        "url": "/api/loans",
+        "description": "Get all loans",
+        "response": {
+          "success": true,
+          "loans": "array of loan objects"
+        }
+      },
+      "getLoanById": {
+        "method": "GET",
+        "url": "/api/loans/:id",
+        "description": "Get a specific loan by ID",
+        "parameters": {
+          "id": "ObjectId (required)"
+        },
+        "response": {
+          "success": true,
+          "loan": "loan object"
+        }
+      },
+      "updateLoan": {
+        "method": "PUT",
+        "url": "/api/loans/:id",
+        "description": "Update a loan",
+        "parameters": {
+          "id": "ObjectId (required)"
+        },
+        "requestBody": {
+          "clientName": "string (optional)",
+          "mobileNumber": "string (optional)",
+          "aadharCard": "string (optional)",
+          "panCard": "string (optional)",
+          "loanType": "string (optional)",
+          "loanAmount": "number (optional)",
+          "extraFee": "number (optional)",
+          "loanDate": "date (optional)",
+          "pendingAmountDate": "date (optional)"
+        },
+        "response": {
+          "success": true,
+          "message": "Loan updated successfully",
+          "loan": "updated loan object"
+        }
+      },
+      "deleteLoan": {
+        "method": "DELETE",
+        "url": "/api/loans/:id",
+        "description": "Delete a loan",
+        "parameters": {
+          "id": "ObjectId (required)"
+        },
+        "response": {
+          "success": true,
+          "message": "Loan deleted successfully"
+        }
+      },
+      "getLoansByClient": {
+        "method": "GET",
+        "url": "/api/loans/client/:clientName",
+        "description": "Get all loans for a specific client",
+        "parameters": {
+          "clientName": "string (required)"
+        },
+        "response": {
+          "success": true,
+          "loans": "array of loan objects for the client"
+        }
+      },
+      "updatePendingAmount": {
+        "method": "PATCH",
+        "url": "/api/loans/:id/pending",
+        "description": "Update pending amount for a loan",
+        "parameters": {
+          "id": "ObjectId (required)"
+        },
+        "requestBody": {
+          "pendingAmount": "number (required)"
+        },
+        "response": {
+          "success": true,
+          "message": "Pending amount updated successfully",
+          "loan": "updated loan object"
+        }
+      }
+    },
+    "sampleLoanObject": {
+      "_id": "507f1f77bcf86cd799439011",
+      "clientName": "John Doe",
+      "mobileNumber": "9876543210",
+      "aadharCard": "1234-5678-9012",
+      "panCard": "ABCDE1234F",
+      "loanType": "Personal Loan",
+      "loanAmount": 50000,
+      "extraFee": 2500,
+      "totalRecoverableAmount": 52500,
+      "pendingAmount": 52500,
+      "pendingAmountDate": "2024-12-31T00:00:00.000Z",
+      "loanDate": "2024-01-15T00:00:00.000Z",
+      "documents": [
+        {
+          "fileName": "aadhar_card.pdf",
+          "filePath": "/uploads/loans/1234567890-aadhar_card.pdf",
+          "fileType": "application/pdf"
+        },
+        {
+          "fileName": "pan_card.jpg",
+          "filePath": "/uploads/loans/1234567890-pan_card.jpg",
+          "fileType": "image/jpeg"
+        }
+      ],
+      "createdAt": "2024-01-15T10:30:00.000Z"
+    },
+    "errorResponses": {
+      "400": {
+        "success": false,
+        "message": "Missing required fields",
+        "missingFields": ["clientName", "loanAmount"]
+      },
+      "404": {
+        "success": false,
+        "message": "Loan not found"
+      },
+      "500": {
+        "success": false,
+        "message": "Internal server error"
+      }
+    },
+    "loanTypes": [
+      "Personal Loan",
+      "Home Loan",
+      "Car Loan",
+      "Business Loan",
+      "Education Loan",
+      "Gold Loan",
+      "Agricultural Loan"
+    ]
+  }
+}

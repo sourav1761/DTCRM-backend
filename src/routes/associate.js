@@ -84,18 +84,18 @@ router.use((req, res, next) => {
   next();
 });
 
+// Fee Settlement / Payments Routes (MUST come before /:id routes)
+router.post("/payment", ctrl.addPayment);            // CREATE PAYMENT - POST /api/associates/payment
+router.get("/payment", ctrl.getPayments);            // READ ALL PAYMENTS - GET /api/associates/payment
+router.get("/payment/:name", ctrl.getPaymentsByAssociate); // READ BY NAME - GET /api/associates/payment/:name
+router.delete("/payment/:id", ctrl.deletePayment);   // DELETE PAYMENT - DELETE /api/associates/payment/:id
+
 // Associate CRUD Routes
 router.post("/", ctrl.addAssociate);                 // CREATE - POST /api/associates
 router.get("/", ctrl.getAssociates);                 // READ ALL - GET /api/associates
 router.get("/:id", ctrl.getAssociateById);           // READ SINGLE - GET /api/associates/:id
 router.put("/:id", ctrl.updateAssociate);            // UPDATE - PUT /api/associates/:id
 router.delete("/:id", ctrl.deleteAssociate);         // DELETE - DELETE /api/associates/:id
-
-// Fee Settlement / Payments Routes
-router.post("/payment", ctrl.addPayment);            // CREATE PAYMENT - POST /api/associates/payment
-router.get("/payment", ctrl.getPayments);            // READ ALL PAYMENTS - GET /api/associates/payment
-router.get("/payment/:name", ctrl.getPaymentsByAssociate); // READ BY NAME - GET /api/associates/payment/:name
-router.delete("/payment/:id", ctrl.deletePayment);   // DELETE PAYMENT - DELETE /api/associates/payment/:id
 
 // Test route
 router.get("/test/route", (req, res) => {

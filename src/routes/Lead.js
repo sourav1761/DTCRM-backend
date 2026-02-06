@@ -1,132 +1,48 @@
-
-
-// const express = require("express");
-// const router = express.Router();
-// const leadController = require("../controllers/leadController");
-// const { uploadMultiple } = require("../middleware/uploadMiddleware");
-
-// console.log("✅ ACTIVE Lead Route Loaded:", __filename);
-
-// // ⚠️ ORDER MATTERS — STATIC FIRST
-// router.get("/stats/overview", leadController.getLeadStats);
-// router.get("/status/:status", leadController.getLeadsByStatus);
-
-// // =========================
-// // CREATE
-// // =========================
-// router.post("/", leadController.createLeadStep1);
-
-// // =========================
-// // READ
-// // =========================
-// router.get("/", leadController.getLeads);
-// router.get("/:id", leadController.getLeadById);
-
-// // =========================
-// // UPDATE STEPS
-// // =========================
-// router.post("/:id/continue-step", leadController.continueToNextStep);
-// router.put("/:id/step/:stepNumber", leadController.updateStep);
-
-// // =========================
-// // FILE UPLOADS ✅ CORRECT WAY
-// // =========================
-// router.post("/:id/loan-facility", uploadMultiple(), leadController.addLoanFacility);
-// router.post("/:id/documents", uploadMultiple(), leadController.uploadDocuments);
-
-// // =========================
-// // PAYMENTS & FEES
-// // =========================
-// router.post("/:id/payments", leadController.addPaymentTransaction);
-// router.post("/:id/commission/:type", leadController.addCommission);
-// router.delete("/:id/commission/:type/:commissionId", leadController.deleteCommission);
-// router.post("/:id/other-fee", leadController.addOtherFee);
-// router.delete("/:id/other-fee/:feeId", leadController.deleteOtherFee);
-
-// // =========================
-// // FINAL
-// // =========================
-// router.post("/:id/complete", leadController.completeLead);
-// router.post("/:id/save", leadController.saveLead);
-// router.delete("/:id", leadController.deleteLead);
-
-// module.exports = router;
-
-
-
-
-
-
 const express = require("express");
 const router = express.Router();
 const leadController = require("../controllers/leadController");
 const { uploadMultiple } = require("../middleware/uploadMiddleware");
 
-console.log("✅ ACTIVE Lead Route Loaded:", __filename);
+console.log("✅ Lead Routes Loaded");
 
-// ⚠️ ORDER MATTERS — STATIC FIRST
-router.get("/stats/overview", leadController.getLeadStats);
-router.get("/status/:status", leadController.getLeadsByStatus);
-router.get("/search", leadController.searchLeads);
-router.get("/recent/:limit", leadController.getRecentLeads);
+// Statistics route (must be first)
+router.get("/stats", leadController.getLeadStats);
 
-// =========================
-// CREATE
-// =========================
+// Create Lead Step 1
 router.post("/", leadController.createLeadStep1);
-router.post("/draft", leadController.saveAsDraft);
 
-// =========================
-// READ
-// =========================
-router.get("/", leadController.getLeads);
-router.get("/id/:leadId", leadController.getLeadByCustomId); // Get by custom lead ID
+// Get All Leads
+router.get("/", leadController.getAllLeads);
+
+// Get Lead by ID
 router.get("/:id", leadController.getLeadById);
 
-// =========================
-// UPDATE STEPS
-// =========================
-router.post("/:id/continue-step", leadController.continueToNextStep);
-router.put("/:id/step/:stepNumber", leadController.updateStep);
+// Step Updates
+router.put("/:id/step1", leadController.updateStep1);
+router.patch("/:id/step1", leadController.updateStep1);
 
-// =========================
-// BULK OPERATIONS
-// =========================
-router.put("/bulk-status", leadController.updateBulkStatus);
-router.post("/:id/duplicate", leadController.duplicateLead);
+router.put("/:id/step2", leadController.updateStep2);
+router.patch("/:id/step2", leadController.updateStep2);
 
-// =========================
-// FILE UPLOADS ✅ CORRECT WAY
-// =========================
-router.post("/:id/loan-facility", uploadMultiple(), leadController.addLoanFacility);
+router.put("/:id/step3", leadController.updateStep3);
+router.patch("/:id/step3", leadController.updateStep3);
+
+router.put("/:id/step4", leadController.updateStep4);
+router.patch("/:id/step4", leadController.updateStep4);
+
+router.put("/:id/step5", leadController.updateStep5);
+router.patch("/:id/step5", leadController.updateStep5);
+
+// Document Operations
 router.post("/:id/documents", uploadMultiple(), leadController.uploadDocuments);
 router.delete("/:id/documents/:docId", leadController.deleteDocument);
 
-// =========================
-// PAYMENTS & FEES
-// =========================
-router.post("/:id/payments", leadController.addPaymentTransaction);
-router.put("/:id/payments/:paymentId", leadController.updatePaymentTransaction);
-router.delete("/:id/payments/:paymentId", leadController.deletePaymentTransaction);
-router.post("/:id/commission/:type", leadController.addCommission);
-router.put("/:id/commission/:type/:commissionId", leadController.updateCommission);
-router.delete("/:id/commission/:type/:commissionId", leadController.deleteCommission);
-router.post("/:id/other-fee", leadController.addOtherFee);
-router.put("/:id/other-fee/:feeId", leadController.updateOtherFee);
-router.delete("/:id/other-fee/:feeId", leadController.deleteOtherFee);
+// General Update
+router.put("/:id", leadController.updateLead);
+router.patch("/:id", leadController.updateLead);
 
-// =========================
-// MANUAL AMOUNT UPDATES (Step 4 specific)
-// =========================
-router.put("/:id/manual-amounts", leadController.updateManualAmounts);
-
-// =========================
-// FINAL OPERATIONS
-// =========================
-router.put("/:id/complete", leadController.completeLead);
-router.put("/:id/save-draft", leadController.saveLead);
-router.put("/:id/update", leadController.updateLead); // General update
+// Delete Operations
 router.delete("/:id", leadController.deleteLead);
-router.delete("/:id/hard", leadController.hardDeleteLead); // Permanent delete
+router.delete("/:id/hard", leadController.hardDeleteLead);
 
 module.exports = router;
