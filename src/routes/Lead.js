@@ -37,6 +37,12 @@ router.patch("/:id/step5", leadController.updateStep5);
 router.post("/:id/documents", uploadMultiple(), leadController.uploadDocuments);
 router.delete("/:id/documents/:docId", leadController.deleteDocument);
 
+// Payment Operations
+router.post("/:id/payments", leadController.addPayment);
+router.get("/:id/payments", leadController.getPayments);
+router.put("/:id/payments/:paymentId", leadController.updatePayment);
+router.delete("/:id/payments/:paymentId", leadController.deletePayment);
+
 // General Update
 router.put("/:id", leadController.updateLead);
 router.patch("/:id", leadController.updateLead);

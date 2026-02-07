@@ -289,7 +289,7 @@ exports.updateStep4 = async (req, res) => {
     if (stepData.officeFee !== undefined) lead.officeFee = parseFloat(stepData.officeFee) || 0;
     if (stepData.registrarCommission !== undefined) lead.registrarCommission = stepData.registrarCommission;
     if (stepData.agentCommission !== undefined) lead.agentCommission = stepData.agentCommission;
-    if (stepData.paidAmount !== undefined) lead.paidAmount = stepData.paidAmount;
+    if (stepData.payments !== undefined) lead.payments = stepData.payments;
     if (stepData.pendingAmount !== undefined) lead.pendingAmount = stepData.pendingAmount;
 
     lead.stepCompleted = Math.max(lead.stepCompleted, 4);
@@ -493,6 +493,126 @@ exports.getLeadStats = async (req, res) => {
     res.json({
       success: true,
       stats
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Add Payment
+exports.addPayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { amount, mode, date, remark, reference } = req.body;
+
+    const lead = await Lead.findById(id);
+    if (!lead) {
+      return res.status(404).json({ success: false, message: "Lead not found" });
+    }
+
+    const payment = {
+      amount: parseFloat(amount) || 0,
+      mode,
+      date: date ? new Date(date) : new Date(),
+      remark,
+      reference
+    };
+
+    if (!lead.payments) lead.payments = [];
+    lead.payments.push(payment);
+
+    await lead.save();
+
+    res.json({
+      success: true,
+      message: "Payment added successfully",
+      payment: lead.payments[lead.payments.length - 1],
+      totalPaid: lead.payments.reduce((sum, p) => sum + p.amount, 0),
+      pendingAmount: lead.pendingAmount.amount
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Update Payment
+exports.updatePayment = async (req, res) => {
+  try {
+    const { id, paymentId } = req.params;
+    const { amount, mode, date, remark, reference } = req.body;
+
+    const lead = await Lead.findById(id);
+    if (!lead) {
+      return res.status(404).json({ success: false, message: "Lead not found" });
+    }
+
+    const payment = lead.payments.id(paymentId);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: "Payment not found" });
+    }
+
+    if (amount !== undefined) payment.amount = parseFloat(amount) || 0;
+    if (mode !== undefined) payment.mode = mode;
+    if (date !== undefined) payment.date = new Date(date);
+    if (remark !== undefined) payment.remark = remark;
+    if (reference !== undefined) payment.reference = reference;
+
+    await lead.save();
+
+    res.json({
+      success: true,
+      message: "Payment updated successfully",
+      payment,
+      totalPaid: lead.payments.reduce((sum, p) => sum + p.amount, 0),
+      pendingAmount: lead.pendingAmount.amount
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Delete Payment
+exports.deletePayment = async (req, res) => {
+  try {
+    const { id, paymentId } = req.params;
+
+    const lead = await Lead.findById(id);
+    if (!lead) {
+      return res.status(404).json({ success: false, message: "Lead not found" });
+    }
+
+    lead.payments.id(paymentId).remove();
+    await lead.save();
+
+    res.json({
+      success: true,
+      message: "Payment deleted successfully",
+      totalPaid: lead.payments.reduce((sum, p) => sum + p.amount, 0),
+      pendingAmount: lead.pendingAmount.amount
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get Payments for a Lead
+exports.getPayments = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const lead = await Lead.findById(id).select('payments totalAmount pendingAmount');
+    if (!lead) {
+      return res.status(404).json({ success: false, message: "Lead not found" });
+    }
+
+    const totalPaid = lead.payments ? lead.payments.reduce((sum, p) => sum + p.amount, 0) : 0;
+
+    res.json({
+      success: true,
+      payments: lead.payments || [],
+      totalAmount: lead.totalAmount,
+      totalPaid,
+      pendingAmount: lead.pendingAmount ? lead.pendingAmount.amount : lead.totalAmount
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
