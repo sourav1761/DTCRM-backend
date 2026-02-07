@@ -41,5 +41,15 @@ router.post("/withdraw", ctrl.addWithdraw);
 // Info
 router.get("/balance", ctrl.getBalance);
 router.get("/stamp-duty/history", ctrl.getStampDutyHistory);
+router.post("/sync", ctrl.syncWallet);
+
+// Transaction History
+router.get("/deposits", ctrl.getDepositHistory);
+router.get("/withdrawals", ctrl.getWithdrawalHistory);
+router.get("/transactions", ctrl.getAllTransactions);
+router.get("/transactions/deposits", ctrl.getDepositHistory);
+router.get("/transactions/withdrawals", ctrl.getWithdrawalHistory);
+router.get("/history/deposits", ctrl.getDepositHistory);
+router.get("/history/withdrawals", ctrl.getWithdrawalHistory);
 
 module.exports = router;

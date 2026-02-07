@@ -232,10 +232,14 @@ const getSampadaWallet = async () => {
   let wallet = await SampadaWallet.findOne();
   if (!wallet) {
     wallet = await SampadaWallet.create({
+      currentAccountBalance: 0,
       registrationFee: 0,
       stampDutyFee: 0,
       mutationFee: 0,
     });
+  } else if (wallet.currentAccountBalance === undefined) {
+    wallet.currentAccountBalance = 0;
+    await wallet.save();
   }
   return wallet;
 };
@@ -258,7 +262,11 @@ exports.addDeposit = async (req, res) => {
       reference,
     });
 
-    res.json({ success: true, tx });
+    const wallet = await getSampadaWallet();
+    wallet.currentAccountBalance += Number(amount);
+    await wallet.save();
+
+    res.json({ success: true, tx, currentAccountBalance: wallet.currentAccountBalance });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -271,26 +279,9 @@ exports.addWithdraw = async (req, res) => {
   try {
     const { amount, method, reference } = req.body;
 
-    const agg = await WalletTransaction.aggregate([
-      {
-        $group: {
-          _id: "$type",
-          total: { $sum: "$amount" },
-        },
-      },
-    ]);
+    const wallet = await getSampadaWallet();
 
-    let deposit = 0;
-    let withdraw = 0;
-
-    agg.forEach((a) => {
-      if (a._id === "deposit") deposit = a.total;
-      if (a._id === "withdraw") withdraw = a.total;
-    });
-
-    const balance = deposit - withdraw;
-
-    if (amount > balance) {
+    if (amount > wallet.currentAccountBalance) {
       return res
         .status(400)
         .json({ success: false, message: "Insufficient balance" });
@@ -303,7 +294,10 @@ exports.addWithdraw = async (req, res) => {
       reference,
     });
 
-    res.json({ success: true, tx });
+    wallet.currentAccountBalance -= Number(amount);
+    await wallet.save();
+
+    res.json({ success: true, tx, currentAccountBalance: wallet.currentAccountBalance });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -317,16 +311,33 @@ exports.addSampadaAmount = async (req, res) => {
     const { registrationFee = 0, stampDutyFee = 0, mutationFee = 0 } = req.body;
 
     const wallet = await getSampadaWallet();
+    console.log("Before update:", { currentAccountBalance: wallet.currentAccountBalance, registrationFee: wallet.registrationFee, stampDutyFee: wallet.stampDutyFee, mutationFee: wallet.mutationFee });
+
+    const totalExpense = Number(registrationFee) + Number(stampDutyFee) + Number(mutationFee);
+    console.log("Total expense to deduct:", totalExpense);
+
+    if (totalExpense > wallet.currentAccountBalance) {
+      return res.status(400).json({ success: false, message: "Insufficient current account balance" });
+    }
 
     wallet.registrationFee += Number(registrationFee);
     wallet.stampDutyFee += Number(stampDutyFee);
     wallet.mutationFee += Number(mutationFee);
+    wallet.currentAccountBalance -= totalExpense;
 
     wallet.updatedAt = new Date();
     await wallet.save();
+    
+    console.log("After update:", { currentAccountBalance: wallet.currentAccountBalance, registrationFee: wallet.registrationFee, stampDutyFee: wallet.stampDutyFee, mutationFee: wallet.mutationFee });
 
-    res.json({ success: true, wallet });
+    res.json({ 
+      success: true, 
+      wallet,
+      currentAccountBalance: wallet.currentAccountBalance,
+      message: "Sampada wallet updated successfully"
+    });
   } catch (err) {
+    console.error("Error in addSampadaAmount:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -377,38 +388,64 @@ exports.payStampDuty = async (req, res) => {
 // GET BALANCE
 // ==========================
 exports.getBalance = async (req, res) => {
-  const agg = await WalletTransaction.aggregate([
-    {
-      $group: {
-        _id: "$type",
-        total: { $sum: "$amount" },
+  try {
+    const wallet = await getSampadaWallet();
+    console.log("Current wallet state:", wallet);
+
+    res.json({
+      success: true,
+      currentAccountBalance: wallet.currentAccountBalance || 0,
+      sampadaWallet: {
+        registrationFee: wallet.registrationFee || 0,
+        stampDutyFee: wallet.stampDutyFee || 0,
+        mutationFee: wallet.mutationFee || 0,
+        total:
+          (wallet.registrationFee || 0) +
+          (wallet.stampDutyFee || 0) +
+          (wallet.mutationFee || 0),
       },
-    },
-  ]);
+    });
+  } catch (err) {
+    console.error("Error in getBalance:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
-  let deposit = 0;
-  let withdraw = 0;
+// ==========================
+// SYNC WALLET (Initialize currentAccountBalance from deposits)
+// ==========================
+exports.syncWallet = async (req, res) => {
+  try {
+    const wallet = await getSampadaWallet();
+    
+    const agg = await WalletTransaction.aggregate([
+      {
+        $group: {
+          _id: "$type",
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
 
-  agg.forEach((a) => {
-    if (a._id === "deposit") deposit = a.total;
-    if (a._id === "withdraw") withdraw = a.total;
-  });
+    let deposit = 0;
+    let withdraw = 0;
 
-  const wallet = await getSampadaWallet();
+    agg.forEach((a) => {
+      if (a._id === "deposit") deposit = a.total;
+      if (a._id === "withdraw") withdraw = a.total;
+    });
 
-  res.json({
-    success: true,
-    currentAccount: deposit - withdraw,
-    sampadaWallet: {
-      registrationFee: wallet.registrationFee,
-      stampDutyFee: wallet.stampDutyFee,
-      mutationFee: wallet.mutationFee,
-      total:
-        wallet.registrationFee +
-        wallet.stampDutyFee +
-        wallet.mutationFee,
-    },
-  });
+    wallet.currentAccountBalance = deposit - withdraw - wallet.registrationFee - wallet.stampDutyFee - wallet.mutationFee;
+    await wallet.save();
+
+    res.json({
+      success: true,
+      message: "Wallet synced successfully",
+      wallet
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
 // ==========================
@@ -417,4 +454,40 @@ exports.getBalance = async (req, res) => {
 exports.getStampDutyHistory = async (req, res) => {
   const list = await StampDutyPayment.find().sort({ createdAt: -1 });
   res.json({ success: true, list });
+};
+
+// ==========================
+// GET DEPOSIT HISTORY
+// ==========================
+exports.getDepositHistory = async (req, res) => {
+  try {
+    const deposits = await WalletTransaction.find({ type: "deposit" }).sort({ createdAt: -1 });
+    res.json({ success: true, transactions: deposits });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==========================
+// GET WITHDRAWAL HISTORY
+// ==========================
+exports.getWithdrawalHistory = async (req, res) => {
+  try {
+    const withdrawals = await WalletTransaction.find({ type: "withdraw" }).sort({ createdAt: -1 });
+    res.json({ success: true, transactions: withdrawals });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ==========================
+// GET ALL TRANSACTIONS
+// ==========================
+exports.getAllTransactions = async (req, res) => {
+  try {
+    const transactions = await WalletTransaction.find().sort({ createdAt: -1 });
+    res.json({ success: true, transactions });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
