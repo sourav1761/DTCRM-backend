@@ -30,5 +30,5 @@ const upload = multer({
 // =====================
 // EXPORT AS FUNCTIONS ✅
 // =====================
-exports.uploadMultiple = () => upload.array("documents", 10);
-exports.uploadSingle = () => upload.single("document");
+exports.uploadMultiple = () => upload.array("files", 10);
+exports.uploadSingle = () => upload.single("file");

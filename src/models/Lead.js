@@ -62,7 +62,7 @@ const PendingAmountSchema = new mongoose.Schema({
 
 // Main Lead Schema
 const LeadSchema = new mongoose.Schema({
-  leadId: { type: String, unique: true },
+  leadId: { type: String },
   
   // Step 1
   customerName: { type: String, required: [true, 'Customer name is required'] },
@@ -161,7 +161,7 @@ LeadSchema.pre("save", async function () {
 });
 
 // Indexes
-LeadSchema.index({ leadId: 1 });
+LeadSchema.index({ leadId: 1 }, { unique: true });
 LeadSchema.index({ mobileNumber: 1 });
 LeadSchema.index({ leadStatus: 1 });
 LeadSchema.index({ stepCompleted: 1 });
