@@ -48,10 +48,12 @@ const CommissionSchema = new mongoose.Schema({
   description: String
 });
 
-const PaidAmountSchema = new mongoose.Schema({
+const PaymentSchema = new mongoose.Schema({
   amount: { type: Number, default: 0 },
-  mode: String,
-  remark: String
+  mode: { type: String, enum: ["cash", "cheque", "online", "card", "upi"] },
+  date: { type: Date, default: Date.now },
+  remark: String,
+  reference: String
 });
 
 const PendingAmountSchema = new mongoose.Schema({
@@ -100,7 +102,7 @@ const LeadSchema = new mongoose.Schema({
   registrarCommission: [CommissionSchema],
   agentCommission: [CommissionSchema],
   totalAmount: { type: Number, default: 0 },
-  paidAmount: PaidAmountSchema,
+  payments: [PaymentSchema],
   pendingAmount: PendingAmountSchema,
   
   // Step 5
@@ -154,10 +156,9 @@ LeadSchema.pre("save", async function () {
   this.totalAmount = total;
 
   // Calculate pending amount
-  if (this.paidAmount && this.paidAmount.amount) {
-    if (!this.pendingAmount) this.pendingAmount = {};
-    this.pendingAmount.amount = this.totalAmount - this.paidAmount.amount;
-  }
+  const totalPaid = this.payments ? this.payments.reduce((sum, payment) => sum + (payment.amount || 0), 0) : 0;
+  if (!this.pendingAmount) this.pendingAmount = {};
+  this.pendingAmount.amount = this.totalAmount - totalPaid;
 });
 
 // Indexes
